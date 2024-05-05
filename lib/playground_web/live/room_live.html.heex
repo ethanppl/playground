@@ -1,0 +1,79 @@
+<%= if is_nil(@room.active_game) do %>
+  <.header class="w-full text-center" header_class="text-4xl font-bold">
+    Welcome to Room <code><%= @room_code %></code>, <%= @player_name %>!
+    <:subtitle>
+      Share the code <code><%= @room_code %></code>
+      for others to join.
+      <%= case @is_host do %>
+        <% true -> %>
+          Pick a game if you are ready!
+        <% _false -> %>
+          Wait for the host to pick a game.
+      <% end %>
+    </:subtitle>
+  </.header>
+
+  <div class="text-sm mt-12">
+    <%= players_count(@room) %> players in the room:
+  </div>
+
+  <.list>
+    <:item :for={player <- @room.players} title={player.id}>
+      <%= player.name %>
+      <%= if player.id == @room.host_id do %>
+        <span class="inline-flex items-center rounded-md bg-blue-50 mx-2 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+          HOST
+        </span>
+      <% end %>
+    </:item>
+  </.list>
+
+  <.table id="pick-games" rows={@games}>
+    <:col :let={game} label="Name"><%= game.name %></:col>
+    <:col :let={game} label="Number of players">
+      <%= if game.min_players == game.max_players do %>
+        <%= game.min_players %>
+      <% else %>
+        <%= game.min_players %> - <%= game.max_players %>
+      <% end %>
+    </:col>
+    <:action :let={game}>
+      <.button
+        class="btn btn-primary"
+        phx-click="pick_game"
+        phx-value-game_id={game.game_id}
+        disabled={
+          players_count(@room) < game.min_players or players_count(@room) > game.max_players
+        }
+      >
+        Pick
+      </.button>
+    </:action>
+  </.table>
+<% end %>
+
+<%!-- <%= if not is_nil(@room.active_game) do %>
+  <.header class="w-full text-center" header_class="text-4xl font-bold">
+    <%= Playground.Games.get_name(@room.active_game.type) %>
+  </.header>
+<% end %> --%>
+
+<%= if not is_nil(@room.active_game) and @room.active_game.type == "tic-tac-toe" do %>
+  <.live_component
+    id={:tic_tac_toe}
+    module={PlaygroundWeb.TicTacToeComponent}
+    game={@room.active_game}
+    player_id={@player_id}
+  />
+<% end %>
+
+<%!-- <div :if={@is_host} class="mt-16">
+  <.link
+    phx-click="back"
+    class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+  >
+    <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> Pick another game
+  </.link>
+</div> --%>
+<%!-- <pre class="whitespace-pre-wrap"><%= inspect(@room, pretty: true) %></pre> --%>
+<%!-- <pre class="whitespace-pre-wrap"><%= inspect(@games, pretty: true) %></pre> --%>

@@ -1,0 +1,50 @@
+<.header class="w-full text-center" header_class="text-4xl font-bold">
+  Welcome to the Playground!
+</.header>
+
+<div class="flex flex-col mt-12">
+  <div class="border rounded text-center my-6 hover:bg-zinc-100">
+    <.link patch={~p"/new"}>
+      <div class="py-24">
+        <.header header_class="text-xl font-semibold">
+          Create a Room
+          <:subtitle>
+            Create a room and invite your friends to join!
+          </:subtitle>
+        </.header>
+      </div>
+    </.link>
+  </div>
+  <div class="border rounded text-center my-6 hover:bg-zinc-100">
+    <.link patch={~p"/join"}>
+      <div class="py-24">
+        <.header header_class="text-xl font-semibold">
+          Join a Room with a Code
+          <:subtitle>
+            Have a code from your friend? Join their room!
+          </:subtitle>
+        </.header>
+      </div>
+    </.link>
+  </div>
+</div>
+
+<.modal :if={@live_action in [:new]} id="new-room-modal" show on_cancel={JS.patch(~p"/")}>
+  <.live_component
+    module={PlaygroundWeb.NewRoomFormComponent}
+    id={:new}
+    title="Create a Room"
+    action={@live_action}
+    patch={~p"/"}
+  />
+</.modal>
+
+<.modal :if={@live_action in [:join]} id="join-room-modal" show on_cancel={JS.patch(~p"/")}>
+  <.live_component
+    module={PlaygroundWeb.JoinRoomFormComponent}
+    id={:join}
+    title="Join a Room"
+    action={@live_action}
+    patch={~p"/"}
+  />
+</.modal>
