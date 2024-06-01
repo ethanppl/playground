@@ -126,11 +126,26 @@ defmodule Playground.RoomProcess do
   def handle_call(
         {:game_move, %{player_id: player_id, move: move}},
         _from,
-        state
+        room
       ) do
-    Games.move(%{game: state.active_game, player_id: player_id, move: move})
+    send_notification_fn = fn %{receiver: _receiver, message: _message, type: _type} = payload ->
+      Phoenix.PubSub.broadcast(
+        Playground.PubSub,
+        room.code,
+        {:room_notification, Map.merge(%{sender: player_id}, payload)}
+      )
+    end
 
-    {:ok, updated_room} = Rooms.get_room_details(state.code)
+    Games.move(%{
+      game: room.active_game,
+      player_id: player_id,
+      move: move,
+      support: %{
+        send_notification_fn: send_notification_fn
+      }
+    })
+
+    {:ok, updated_room} = Rooms.get_room_details(room.code)
 
     {:reply, :ok, updated_room, {:continue, :broadcast}}
   end

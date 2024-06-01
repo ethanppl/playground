@@ -4,6 +4,11 @@ defmodule Playground.DB.Player do
   """
   use Playground.DB.Schema
 
+  alias Ecto.Query
+  alias Playground.Repo
+
+  require Ecto.Query
+
   typed_schema "players" do
     field :name, :string
 
@@ -17,5 +22,10 @@ defmodule Playground.DB.Player do
     player
     |> cast(attrs, [:name, :room_id])
     |> validate_required([:name, :room_id])
+  end
+
+  @doc false
+  def get_player_by_id(id) do
+    Repo.one(Query.from(p in __MODULE__, where: p.id == ^id))
   end
 end

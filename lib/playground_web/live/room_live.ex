@@ -50,6 +50,46 @@ defmodule PlaygroundWeb.RoomLive do
     {:noreply, assign(socket, :room, room)}
   end
 
+  def handle_info(
+        {:room_notification,
+         %{sender: _sender, receiver: receiver, message: message, type: type} = payload},
+        socket
+      ) do
+    player_id = "#{socket.assigns.player_id}"
+
+    duration =
+      case payload[:duration] do
+        nil -> 3000
+        _non_nil -> payload.duration
+      end
+
+    case receiver do
+      %{type: :broadcast} ->
+        {:noreply, put_flash_and_schedule_clear(socket, type, message, duration)}
+
+      %{type: :player, player: ^player_id} ->
+        {:noreply, put_flash_and_schedule_clear(socket, type, message, duration)}
+
+      %{type: :broadcast_except, except: except} when except != player_id ->
+        {:noreply, put_flash_and_schedule_clear(socket, type, message, duration)}
+
+      _others ->
+        {:noreply, socket}
+    end
+  end
+
+  def handle_info(:clear_flash, socket) do
+    {:noreply, clear_flash(socket)}
+  end
+
+  defp put_flash_and_schedule_clear(socket, type, message, duration) do
+    clear_flash_timer = Process.send_after(self(), :clear_flash, duration)
+
+    socket
+    |> assign(:clear_flash_timer, clear_flash_timer)
+    |> put_flash(type, message)
+  end
+
   @impl Phoenix.LiveView
   def handle_event("pick_game", %{"game_id" => game_id}, socket) do
     case Playground.RoomProcess.start_game(%{code: socket.assigns.room_code, game_id: game_id}) do
@@ -61,7 +101,6 @@ defmodule PlaygroundWeb.RoomLive do
     end
   end
 
-  @impl Phoenix.LiveView
   def handle_event(
         "tic-tac-toe-move",
         %{"row_index" => row_index, "col_index" => col_index},
@@ -73,10 +112,13 @@ defmodule PlaygroundWeb.RoomLive do
       move: %{row: String.to_integer(row_index), col: String.to_integer(col_index)}
     })
 
-    {:noreply, socket}
+    if socket.assigns[:clear_flash_timer] do
+      Process.cancel_timer(socket.assigns[:clear_flash_timer])
+    end
+
+    {:noreply, clear_flash(socket, :notif)}
   end
 
-  @impl Phoenix.LiveView
   def handle_event(
         "back",
         _params,
@@ -84,10 +126,9 @@ defmodule PlaygroundWeb.RoomLive do
       ) do
     Playground.RoomProcess.end_game(socket.assigns.room_code)
 
-    {:noreply, socket}
+    {:noreply, clear_flash(socket)}
   end
 
-  @impl Phoenix.LiveView
   def handle_event(
         "tic-tac-toe-again",
         _params,
@@ -96,7 +137,11 @@ defmodule PlaygroundWeb.RoomLive do
     Playground.RoomProcess.end_game(socket.assigns.room_code)
     Playground.RoomProcess.start_game(%{code: socket.assigns.room_code, game_id: "tic-tac-toe"})
 
-    {:noreply, socket}
+    if socket.assigns[:clear_flash_timer] do
+      Process.cancel_timer(socket.assigns[:clear_flash_timer])
+    end
+
+    {:noreply, clear_flash(socket)}
   end
 
   def players_count(room) do

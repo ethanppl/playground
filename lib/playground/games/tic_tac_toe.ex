@@ -10,7 +10,7 @@ defmodule Playground.Games.TicTacToe do
   @min_players 2
   @max_players 2
 
-  alias Playground.DB.{Game, GameType, Room}
+  alias Playground.DB.{Game, GameType, Player, Room}
 
   @impl Playground.Games
   def get_name(), do: @name
@@ -63,7 +63,14 @@ defmodule Playground.Games.TicTacToe do
   Make a move in the game
   """
   @impl Playground.Games
-  def move(%{game: game, player_id: player_id, move: move}) do
+  def move(%{
+        game: game,
+        player_id: player_id,
+        move: move,
+        support: %{
+          send_notification_fn: send_notification_fn
+        }
+      }) do
     state = game.state
     player_symbol = state["players"]["#{player_id}"]
     another_player = state["players"] |> Map.keys() |> Enum.find(&(&1 != "#{player_id}"))
@@ -83,6 +90,7 @@ defmodule Playground.Games.TicTacToe do
         |> Map.put("board", new_board)
         |> Map.put("turn", another_player)
         |> maybe_set_winner()
+        |> maybe_send_notification(send_notification_fn)
     end
   end
 
@@ -124,10 +132,60 @@ defmodule Playground.Games.TicTacToe do
   defp maybe_draw(state) do
     board = state["board"]
 
-    if Enum.all?(board, fn row -> Enum.all?(row, fn cell -> cell != nil end) end) do
+    if board_is_full?(board) do
       Map.put(state, "winner", "draw")
     else
       state
     end
+  end
+
+  defp board_is_full?(board) do
+    Enum.all?(board, fn row -> row_is_full?(row) end)
+  end
+
+  defp row_is_full?(row) do
+    Enum.all?(row, fn cell -> cell != nil end)
+  end
+
+  defp maybe_send_notification(state, send_notification_fn) do
+    case state do
+      %{"winner" => "draw"} ->
+        send_notification_fn.(%{
+          receiver: %{type: :broadcast},
+          message: "It's a draw!",
+          type: :notif
+        })
+
+      %{"winner" => winner} when not is_nil(winner) ->
+        winner_name =
+          winner
+          |> String.to_integer()
+          |> Player.get_player_by_id()
+          |> Map.get(:name)
+
+        send_notification_fn.(%{
+          receiver: %{type: :broadcast_except, except: winner},
+          message: "#{winner_name} won!",
+          type: :notif
+        })
+
+        send_notification_fn.(%{
+          receiver: %{type: :player, player: winner},
+          message: "You won!",
+          type: :notif
+        })
+
+      %{"turn" => another_player} ->
+        send_notification_fn.(%{
+          receiver: %{type: :player, player: another_player},
+          message: "Your Turn!",
+          type: :notif
+        })
+
+      _other ->
+        nil
+    end
+
+    state
   end
 end

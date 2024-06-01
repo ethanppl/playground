@@ -1,4 +1,8 @@
 defmodule PlaygroundWeb.TicTacToeComponent do
+  @moduledoc """
+  A component for the Tic Tac Toe game
+  """
+
   use PlaygroundWeb, :live_component
 
   @impl Phoenix.LiveComponent

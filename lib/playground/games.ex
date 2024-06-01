@@ -81,10 +81,17 @@ defmodule Playground.Games do
 
   ## Examples
 
-      iex> move(%{game: game, player_id: _player_id, move: _move})
+      iex> move(%{game: game, player_id: _player_id, move: _move, support: _support})
       %Playground.DB.Game{}
   """
-  def move(%{game: game, player_id: _player_id, move: _move} = attr) do
+  def move(
+        %{
+          game: game,
+          player_id: _player_id,
+          move: _move,
+          support: _support
+        } = attr
+      ) do
     module = game_module(game.type)
 
     new_state = apply(module, :move, [attr])
