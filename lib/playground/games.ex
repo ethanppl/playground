@@ -4,11 +4,13 @@ defmodule Playground.Games do
   """
 
   alias Playground.DB.{Game, GameType, Room}
+  alias Playground.Games.{MultiHangman, TicTacToe}
 
   require Ecto.Query
 
   @games %{
-    "tic-tac-toe" => Playground.Games.TicTacToe
+    "tic-tac-toe" => TicTacToe,
+    "multi-hangman" => MultiHangman
   }
 
   @doc """
@@ -97,5 +99,18 @@ defmodule Playground.Games do
     new_state = apply(module, :move, [attr])
 
     Game.update(game, %{state: new_state})
+  end
+
+  @doc """
+  Given a list of players and a player_id, return the player's name.
+  The player_id can be an integer or a string.
+
+  ## Examples
+
+      iex> get_player_name([%Playground.DB.Player{id: 1, name: "Alice"}, %Playground.DB.Player{id: 2, name: "Bob"}], 1)
+      "Alice"
+  """
+  def get_player_name(players, player_id) do
+    players |> Enum.find(&("#{&1.id}" == "#{player_id}")) |> Map.get(:name, "")
   end
 end

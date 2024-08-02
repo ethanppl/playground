@@ -75,15 +75,16 @@ defmodule PlaygroundWeb.JoinRoomFormComponent do
         <.input
           field={@form[:code]}
           type="text"
-          label="Enter the room code from your friend"
-          rows={10}
+          label="ROOM CODE"
+          helper="Enter the 4 letters room code from your friend"
           class="uppercase"
+          autocomplete="off"
         />
         <.input
           field={@form[:player_name]}
           type="text"
-          label="Enter your name, a name recognizable by your friends :)"
-          rows={10}
+          label="NAME"
+          helper="Enter your name, a name recognizable by your friends :)"
           class="uppercase"
         />
         <:actions>

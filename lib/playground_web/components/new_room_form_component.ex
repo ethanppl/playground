@@ -46,8 +46,8 @@ defmodule PlaygroundWeb.NewRoomFormComponent do
         <.input
           field={@form[:host_name]}
           type="text"
-          label="Enter your name, a name recognizable by your friends :)"
-          rows={10}
+          label="NAME"
+          helper="Enter your name, a name recognizable by your friends :)"
           class="uppercase"
         />
         <:actions>

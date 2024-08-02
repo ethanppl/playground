@@ -141,7 +141,8 @@ defmodule Playground.RoomProcess do
       player_id: player_id,
       move: move,
       support: %{
-        send_notification_fn: send_notification_fn
+        send_notification_fn: send_notification_fn,
+        players: room.players
       }
     })
 

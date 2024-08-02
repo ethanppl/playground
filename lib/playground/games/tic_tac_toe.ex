@@ -10,7 +10,8 @@ defmodule Playground.Games.TicTacToe do
   @min_players 2
   @max_players 2
 
-  alias Playground.DB.{Game, GameType, Player, Room}
+  alias Playground.DB.{Game, GameType, Room}
+  alias Playground.Games
 
   @impl Playground.Games
   def get_name(), do: @name
@@ -67,9 +68,7 @@ defmodule Playground.Games.TicTacToe do
         game: game,
         player_id: player_id,
         move: move,
-        support: %{
-          send_notification_fn: send_notification_fn
-        }
+        support: support
       }) do
     state = game.state
     player_symbol = state["players"]["#{player_id}"]
@@ -90,7 +89,7 @@ defmodule Playground.Games.TicTacToe do
         |> Map.put("board", new_board)
         |> Map.put("turn", another_player)
         |> maybe_set_winner()
-        |> maybe_send_notification(send_notification_fn)
+        |> maybe_send_notification(support)
     end
   end
 
@@ -147,7 +146,10 @@ defmodule Playground.Games.TicTacToe do
     Enum.all?(row, fn cell -> cell != nil end)
   end
 
-  defp maybe_send_notification(state, send_notification_fn) do
+  defp maybe_send_notification(state, %{
+         send_notification_fn: send_notification_fn,
+         players: players
+       }) do
     case state do
       %{"winner" => "draw"} ->
         send_notification_fn.(%{
@@ -157,22 +159,18 @@ defmodule Playground.Games.TicTacToe do
         })
 
       %{"winner" => winner} when not is_nil(winner) ->
-        winner_name =
-          winner
-          |> String.to_integer()
-          |> Player.get_player_by_id()
-          |> Map.get(:name)
+        winner_name = Games.get_player_name(players, winner)
 
         send_notification_fn.(%{
-          receiver: %{type: :broadcast_except, except: winner},
+          receiver: %{type: :broadcast_except, except: [winner]},
           message: "#{winner_name} won!",
-          type: :notif
+          type: :error_plain
         })
 
         send_notification_fn.(%{
           receiver: %{type: :player, player: winner},
           message: "You won!",
-          type: :notif
+          type: :info_plain
         })
 
       %{"turn" => another_player} ->

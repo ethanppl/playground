@@ -11,7 +11,8 @@ defmodule PlaygroundWeb.RoomLive do
      socket
      |> assign(:code_from_session, session["room_code"])
      |> assign(:player_id, session["user_id"])
-     |> assign(:player_name, session["user_name"])}
+     |> assign(:player_name, session["user_name"])
+     |> assign(:is_info_modal_open, false)}
   end
 
   @impl Phoenix.LiveView
@@ -55,7 +56,8 @@ defmodule PlaygroundWeb.RoomLive do
          %{sender: _sender, receiver: receiver, message: message, type: type} = payload},
         socket
       ) do
-    player_id = "#{socket.assigns.player_id}"
+    integer_player_id = socket.assigns.player_id
+    string_player_id = "#{socket.assigns.player_id}"
 
     duration =
       case payload[:duration] do
@@ -67,11 +69,18 @@ defmodule PlaygroundWeb.RoomLive do
       %{type: :broadcast} ->
         {:noreply, put_flash_and_schedule_clear(socket, type, message, duration)}
 
-      %{type: :player, player: ^player_id} ->
+      %{type: :player, player: ^string_player_id} ->
         {:noreply, put_flash_and_schedule_clear(socket, type, message, duration)}
 
-      %{type: :broadcast_except, except: except} when except != player_id ->
+      %{type: :player, player: ^integer_player_id} ->
         {:noreply, put_flash_and_schedule_clear(socket, type, message, duration)}
+
+      %{type: :broadcast_except, except: except} ->
+        if not Enum.any?(except, &(&1 == string_player_id or &1 == integer_player_id)) do
+          {:noreply, put_flash_and_schedule_clear(socket, type, message, duration)}
+        else
+          {:noreply, socket}
+        end
 
       _others ->
         {:noreply, socket}
@@ -80,6 +89,23 @@ defmodule PlaygroundWeb.RoomLive do
 
   def handle_info(:clear_flash, socket) do
     {:noreply, clear_flash(socket)}
+  end
+
+  def handle_info(
+        {:moved, move},
+        socket
+      ) do
+    Playground.RoomProcess.game_move(%{
+      code: socket.assigns.room_code,
+      player_id: socket.assigns.player_id,
+      move: move
+    })
+
+    if socket.assigns[:clear_flash_timer] do
+      Process.cancel_timer(socket.assigns[:clear_flash_timer])
+    end
+
+    {:noreply, clear_flash(socket, :notif)}
   end
 
   defp put_flash_and_schedule_clear(socket, type, message, duration) do
@@ -102,46 +128,46 @@ defmodule PlaygroundWeb.RoomLive do
   end
 
   def handle_event(
-        "tic-tac-toe-move",
-        %{"row_index" => row_index, "col_index" => col_index},
-        socket
-      ) do
-    Playground.RoomProcess.game_move(%{
-      code: socket.assigns.room_code,
-      player_id: socket.assigns.player_id,
-      move: %{row: String.to_integer(row_index), col: String.to_integer(col_index)}
-    })
-
-    if socket.assigns[:clear_flash_timer] do
-      Process.cancel_timer(socket.assigns[:clear_flash_timer])
-    end
-
-    {:noreply, clear_flash(socket, :notif)}
-  end
-
-  def handle_event(
         "back",
         _params,
         socket
       ) do
     Playground.RoomProcess.end_game(socket.assigns.room_code)
 
-    {:noreply, clear_flash(socket)}
+    {:noreply,
+     socket
+     |> clear_flash()
+     |> assign(:is_info_modal_open, false)}
   end
 
   def handle_event(
-        "tic-tac-toe-again",
+        "again",
         _params,
         socket
       ) do
     Playground.RoomProcess.end_game(socket.assigns.room_code)
-    Playground.RoomProcess.start_game(%{code: socket.assigns.room_code, game_id: "tic-tac-toe"})
+
+    Playground.RoomProcess.start_game(%{
+      code: socket.assigns.room_code,
+      game_id: socket.assigns.room.active_game.type
+    })
 
     if socket.assigns[:clear_flash_timer] do
       Process.cancel_timer(socket.assigns[:clear_flash_timer])
     end
 
-    {:noreply, clear_flash(socket)}
+    {:noreply,
+     socket
+     |> clear_flash()
+     |> assign(:is_info_modal_open, false)}
+  end
+
+  def handle_event("open_info_modal", _params, socket) do
+    {:noreply, assign(socket, is_info_modal_open: true)}
+  end
+
+  def handle_event("close_info_modal", _params, socket) do
+    {:noreply, assign(socket, is_info_modal_open: false)}
   end
 
   def players_count(room) do

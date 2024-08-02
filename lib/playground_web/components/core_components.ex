@@ -39,6 +39,7 @@ defmodule PlaygroundWeb.CoreComponents do
   attr :id, :string, required: true
   attr :show, :boolean, default: false
   attr :on_cancel, JS, default: %JS{}
+  attr :class, :string, default: nil
   slot :inner_block, required: true
 
   def modal(assigns) do
@@ -66,7 +67,10 @@ defmodule PlaygroundWeb.CoreComponents do
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-14 shadow-lg ring-1 transition"
+              class={[
+                "shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-6 md:p-14 shadow-lg ring-1 transition",
+                @class
+              ]}
             >
               <div class="absolute top-6 right-5">
                 <button
@@ -100,7 +104,11 @@ defmodule PlaygroundWeb.CoreComponents do
   attr :id, :string, doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
-  attr :kind, :atom, values: [:info, :error, :notif], doc: "used for styling and flash lookup"
+
+  attr :kind, :atom,
+    values: [:info, :error, :info_plain, :error_plain, :notif],
+    doc: "used for styling and flash lookup"
+
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
 
   slot :inner_block, doc: "the optional inner block that renders the flash message"
@@ -115,17 +123,27 @@ defmodule PlaygroundWeb.CoreComponents do
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
       class={[
-        "fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
-        @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
+        "fixed top-2 right-2 mr-2 w-40 md:w-80 z-50 rounded-lg p-2 md:p-3 ring-1",
         @kind == :notif && "bg-sky-50 text-sky-800 ring-sky-500 fill-cyan-900",
-        @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
+        (@kind == :info or @kind == :info_plain) &&
+          "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
+        (@kind == :error or @kind == :error_plain) &&
+          "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
       {@rest}
     >
       <p :if={@title} class="flex items-center gap-1.5 text-sm font-semibold leading-6">
-        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4" />
         <.icon :if={@kind == :notif} name="hero-information-circle-mini" class="h-4 w-4" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4" />
+        <.icon
+          :if={@kind == :info or @kind == :info_plain}
+          name="hero-information-circle-mini"
+          class="h-4 w-4"
+        />
+        <.icon
+          :if={@kind == :error or @kind == :error_plain}
+          name="hero-exclamation-circle-mini"
+          class="h-4 w-4"
+        />
         <%= @title %>
       </p>
       <p class="mt-2 text-sm leading-5"><%= msg %></p>
@@ -151,6 +169,8 @@ defmodule PlaygroundWeb.CoreComponents do
     <div id={@id}>
       <.flash kind={:info} title={gettext("Success!")} flash={@flash} />
       <.flash kind={:error} title={gettext("Error!")} flash={@flash} />
+      <.flash kind={:info_plain} flash={@flash} />
+      <.flash kind={:error_plain} flash={@flash} />
       <.flash kind={:notif} flash={@flash} />
       <.flash
         id="client-error"
@@ -199,13 +219,15 @@ defmodule PlaygroundWeb.CoreComponents do
     include: ~w(autocomplete name rel action enctype method novalidate target multipart),
     doc: "the arbitrary HTML attributes to apply to the form tag"
 
+  attr :class, :string, default: nil, doc: "the class to apply to the root div"
+
   slot :inner_block, required: true
   slot :actions, doc: "the slot for form actions, such as a submit button"
 
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
+      <div class={["mt-10 space-y-8 bg-white", @class]}>
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
@@ -226,14 +248,25 @@ defmodule PlaygroundWeb.CoreComponents do
   attr :type, :string, default: nil
   attr :class, :string, default: nil
   attr :rest, :global, include: ~w(disabled form name value)
+  attr :variant, :atom, default: :primary, values: [:primary, :secondary]
+  attr :size, :atom, default: :md, values: [:sm, :md, :responsive]
 
   slot :inner_block, required: true
 
   def button(assigns) do
     color_class =
-      case assigns.rest[:disabled] do
-        true -> "bg-zinc-900 opacity-50 cursor-not-allowed"
-        _ -> "bg-zinc-900 hover:bg-zinc-700"
+      cond do
+        assigns.rest[:disabled] ->
+          "bg-zinc-900 opacity-50 cursor-not-allowed"
+
+        assigns.variant == :primary ->
+          "bg-zinc-900 hover:bg-zinc-700"
+
+        assigns.variant == :secondary ->
+          "bg-zinc-50 border border-zinc-600 text-zinc-900 hover:bg-zinc-200"
+
+        true ->
+          "bg-zinc-900 hover:bg-zinc-700"
       end
 
     assigns = assign(assigns, :color_class, color_class)
@@ -242,8 +275,11 @@ defmodule PlaygroundWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg py-2 px-3",
+        "phx-submit-loading:opacity-75 rounded-lg px-3",
         "text-sm font-semibold leading-6 text-white active:text-white/80",
+        @size == :sm && "text-xs py-1",
+        @size == :md && "text-base py-2",
+        @size == :responsive && "text-xs md:text-base py-1 md:py-2",
         @color_class,
         @class
       ]}
@@ -282,6 +318,7 @@ defmodule PlaygroundWeb.CoreComponents do
   attr :id, :any, default: nil
   attr :name, :any
   attr :label, :string, default: nil
+  attr :helper, :string, default: nil
   attr :value, :any
 
   attr :class, :string, default: nil
@@ -303,6 +340,8 @@ defmodule PlaygroundWeb.CoreComponents do
   attr :rest, :global,
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
                 multiple pattern placeholder readonly required rows size step)
+
+  attr :ignore_error_msg, :boolean, default: false, doc: "the flag to not display error messages"
 
   slot :inner_block
 
@@ -336,7 +375,7 @@ defmodule PlaygroundWeb.CoreComponents do
         />
         <%= @label %>
       </label>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.error :for={msg <- @errors} :if={not @ignore_error_msg}><%= msg %></.error>
     </div>
     """
   end
@@ -345,6 +384,7 @@ defmodule PlaygroundWeb.CoreComponents do
     ~H"""
     <div phx-feedback-for={@name}>
       <.label for={@id}><%= @label %></.label>
+      <.helper for={@id}><%= @helper %></.helper>
       <select
         id={@id}
         name={@name}
@@ -355,7 +395,7 @@ defmodule PlaygroundWeb.CoreComponents do
         <option :if={@prompt} value=""><%= @prompt %></option>
         <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
       </select>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.error :for={msg <- @errors} :if={not @ignore_error_msg}><%= msg %></.error>
     </div>
     """
   end
@@ -364,6 +404,7 @@ defmodule PlaygroundWeb.CoreComponents do
     ~H"""
     <div phx-feedback-for={@name}>
       <.label for={@id}><%= @label %></.label>
+      <.helper for={@id}><%= @helper %></.helper>
       <textarea
         id={@id}
         name={@name}
@@ -376,7 +417,7 @@ defmodule PlaygroundWeb.CoreComponents do
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.error :for={msg <- @errors} :if={not @ignore_error_msg}><%= msg %></.error>
     </div>
     """
   end
@@ -386,6 +427,7 @@ defmodule PlaygroundWeb.CoreComponents do
     ~H"""
     <div phx-feedback-for={@name}>
       <.label for={@id}><%= @label %></.label>
+      <.helper for={@id}><%= @helper %></.helper>
       <input
         type={@type}
         name={@name}
@@ -400,7 +442,7 @@ defmodule PlaygroundWeb.CoreComponents do
         ]}
         {@rest}
       />
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.error :for={msg <- @errors} :if={not @ignore_error_msg}><%= msg %></.error>
     </div>
     """
   end
@@ -416,6 +458,20 @@ defmodule PlaygroundWeb.CoreComponents do
     <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
       <%= render_slot(@inner_block) %>
     </label>
+    """
+  end
+
+  @doc """
+  Renders a helper text.
+  """
+  attr :for, :string, default: nil
+  slot :inner_block, required: true
+
+  def helper(assigns) do
+    ~H"""
+    <div for={@for} class="block text-sm text-slate-500 leading-6">
+      <%= render_slot(@inner_block) %>
+    </div>
     """
   end
 
@@ -473,6 +529,7 @@ defmodule PlaygroundWeb.CoreComponents do
   attr :rows, :list, required: true
   attr :row_id, :any, default: nil, doc: "the function for generating the row id"
   attr :row_click, :any, default: nil, doc: "the function for handling phx-click on each row"
+  attr :class, :string, default: nil
 
   attr :row_item, :any,
     default: &Function.identity/1,
@@ -492,7 +549,7 @@ defmodule PlaygroundWeb.CoreComponents do
 
     ~H"""
     <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
-      <table class="max-w-[40rem] mt-11 sm:w-full">
+      <table class={["max-w-[40rem] mt-11 sm:w-full", @class]}>
         <thead class="text-sm text-left leading-6 text-zinc-500">
           <tr>
             <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal"><%= col[:label] %></th>

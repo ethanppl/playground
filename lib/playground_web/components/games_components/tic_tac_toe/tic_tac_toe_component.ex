@@ -1,4 +1,4 @@
-defmodule PlaygroundWeb.TicTacToeComponent do
+defmodule PlaygroundWeb.GamesComponents.TicTacToeComponent do
   @moduledoc """
   A component for the Tic Tac Toe game
   """
@@ -9,7 +9,7 @@ defmodule PlaygroundWeb.TicTacToeComponent do
   def render(assigns) do
     ~H"""
     <div class="w-full">
-      <div class="text-2xl font-bold m-4 w-full text-center">
+      <div class="text-xl md:text-2xl font-bold m-4 text-center">
         <%= cond do %>
           <% not is_nil(@game.state["winner"]) -> %>
             <%= if @game.state["winner"] == "draw" do %>
@@ -26,18 +26,18 @@ defmodule PlaygroundWeb.TicTacToeComponent do
               <% end %>
             <% end %>
             <div class="my-4">
-              <.button phx-click="tic-tac-toe-again">
-                Play again
-              </.button>
-              <.button phx-click="back">
+              <.button phx-click="back" size={:responsive} variant={:secondary}>
                 Pick another game
+              </.button>
+              <.button phx-click="again" size={:responsive}>
+                Play again
               </.button>
             </div>
           <% @game.state["turn"] == "#{@player_id}" -> %>
             <p>Your turn! You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %></p>
           <% true -> %>
             <p>
-              You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %>. Waiting for another players...
+              You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %>. Waiting...
             </p>
         <% end %>
       </div>
@@ -51,7 +51,8 @@ defmodule PlaygroundWeb.TicTacToeComponent do
                   <%= if @game.state["turn"] == "#{@player_id}" and is_nil(@game.state["winner"]) do %>
                     <button
                       class="border solid aspect-square flex item-center hover:bg-gray-100 cursor-pointer"
-                      phx-click="tic-tac-toe-move"
+                      phx-target={@myself}
+                      phx-click="move"
                       phx-value-row_index={row_index}
                       phx-value-col_index={col_index}
                     />
@@ -91,24 +92,12 @@ defmodule PlaygroundWeb.TicTacToeComponent do
         %{"row_index" => row_index, "col_index" => col_index},
         socket
       ) do
-    Playground.RoomProcess.game_move(%{
-      code: socket.assigns.room_code,
-      player_id: socket.assigns.player_id,
-      move: %{row: String.to_integer(row_index), col: String.to_integer(col_index)}
-    })
+    notify_parent(
+      {:moved, %{row: String.to_integer(row_index), col: String.to_integer(col_index)}}
+    )
 
     {:noreply, socket}
   end
 
-  @impl Phoenix.LiveComponent
-  def handle_event(
-        "again",
-        _params,
-        socket
-      ) do
-    Playground.RoomProcess.end_game(socket.assigns.room_code)
-    Playground.RoomProcess.start_game(%{code: socket.assigns.room_code, game_id: "tic-tac-toe"})
-
-    {:noreply, socket}
-  end
+  defp notify_parent(msg), do: send(self(), msg)
 end
