@@ -18,7 +18,7 @@ defmodule PlaygroundWeb.RoomLive do
   @impl Phoenix.LiveView
   def handle_params(
         %{"code" => code} = params,
-        _url,
+        url,
         # The code in the URL has to match the code in the session
         %{assigns: %{code_from_session: code}} = socket
       ) do
@@ -29,7 +29,9 @@ defmodule PlaygroundWeb.RoomLive do
       {:ok, room_details} ->
         is_host = room_details.host_id === socket.assigns.player_id
 
-        games = Playground.Games.list_games()
+        games = get_games(room_details)
+
+        join_room_link = String.replace(url, "/rooms/#{code}", "/join/#{code}")
 
         {:noreply,
          socket
@@ -37,6 +39,7 @@ defmodule PlaygroundWeb.RoomLive do
          |> assign(:room, room_details)
          |> assign(:is_host, is_host)
          |> assign(:games, games)
+         |> assign(:join_room_link, join_room_link)
          |> apply_action(socket.assigns.live_action, params)}
     end
   end
@@ -48,7 +51,12 @@ defmodule PlaygroundWeb.RoomLive do
 
   @impl Phoenix.LiveView
   def handle_info({:room_updated, room}, socket) do
-    {:noreply, assign(socket, :room, room)}
+    games = get_games(room)
+
+    {:noreply,
+     socket
+     |> assign(:room, room)
+     |> assign(:games, games)}
   end
 
   def handle_info(
@@ -172,6 +180,15 @@ defmodule PlaygroundWeb.RoomLive do
 
   def players_count(room) do
     Enum.count(room.players)
+  end
+
+  defp get_games(room_details) do
+    Enum.map(Playground.Games.list_games(), fn game ->
+      players_count = players_count(room_details)
+      disabled = players_count < game.min_players or players_count > game.max_players
+
+      Map.put(game, :disabled, disabled)
+    end)
   end
 
   defp apply_action(socket, :index, _params) do

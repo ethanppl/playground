@@ -20,6 +20,7 @@ defmodule PlaygroundWeb.Router do
     live "/", HomeLive, :index
     live "/new", HomeLive, :new
     live "/join", HomeLive, :join
+    live "/join/:code", HomeLive, :join
 
     live "/rooms/:code", RoomLive, :index
 

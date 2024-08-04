@@ -1,54 +1,58 @@
 <%= if is_nil(@room.active_game) do %>
   <.header class="w-full text-center" header_class="text-xl md:text-4xl font-bold">
-    Welcome to Room <code><%= @room_code %></code>, <%= @player_name %>!
+    Welcome to Room <code class="select-all"><%= @room_code %></code>, <%= @player_name %>!
     <:subtitle>
-      Share the code <code><%= @room_code %></code>
+      <.copyable content={@join_room_link} /><br /> Share
+      <a href={@join_room_link} target="_blank">this link</a>
+      or the code <code class="select-all"><%= @room_code %></code>
       for others to join.
-      <%= case @is_host do %>
-        <% true -> %>
-          Pick a game if you are ready!
-        <% _false -> %>
-          Wait for the host to pick a game.
-      <% end %>
     </:subtitle>
   </.header>
 
-  <div class="text-sm mt-12">
-    <%= players_count(@room) %> players in the room:
+  <div class="mt-14">
+    <.players_component room={@room} />
   </div>
 
-  <.list>
-    <:item :for={player <- @room.players} title={player.name}>
-      <%= if player.id == @room.host_id do %>
-        <span class="inline-flex items-center rounded-md bg-blue-50 mx-2 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-          HOST
-        </span>
-      <% end %>
-    </:item>
-  </.list>
+  <p class="w-full text-center mt-14 text-sm leading-6 text-zinc-600">
+    Pick a game if you are ready!
+  </p>
 
-  <.table id="pick-games" rows={@games}>
-    <:col :let={game} label="Name"><%= game.name %></:col>
-    <:col :let={game} label="Number of players">
-      <%= if game.min_players == game.max_players do %>
-        <%= game.min_players %>
-      <% else %>
-        <%= game.min_players %> - <%= game.max_players %>
-      <% end %>
-    </:col>
-    <:action :let={game}>
-      <.button
-        class="btn btn-primary"
-        phx-click="pick_game"
-        phx-value-game_id={game.game_id}
-        disabled={
-          players_count(@room) < game.min_players or players_count(@room) > game.max_players
-        }
-      >
-        Pick
-      </.button>
-    </:action>
-  </.table>
+  <div class="mt-2 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div :for={game <- @games}>
+      <div class={[
+        "border border-1 rounded-lg",
+        not game.disabled && "hover:scale-105 duration-150"
+      ]}>
+        <button
+          class={[
+            "phx-submit-loading:opacity-75 rounded-lg px-3",
+            game.disabled && "cursor-not-allowed opacity-50"
+          ]}
+          phx-click="pick_game"
+          phx-value-game_id={game.game_id}
+          disabled={game.disabled}
+        >
+          <img
+            src={"/images/games/#{game.game_id}.png"}
+            class="w-11/12 aspect-square mx-auto p-2"
+          />
+          <div class="flex flex-row justify-between py-2 px-2">
+            <span class="font-bold"><%= game.name %></span>
+            <div class="flex flex-row gap-1 items-center">
+              <span>
+                <%= if game.min_players == game.max_players do %>
+                  <%= game.min_players %>
+                <% else %>
+                  <%= game.min_players %> - <%= game.max_players %>
+                <% end %>
+              </span>
+              <.icon name="hero-users-solid" class="w-4 h-4" />
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
 <% end %>
 
 <%= if not is_nil(@room.active_game) and @room.active_game.type == "tic-tac-toe" do %>
@@ -85,21 +89,21 @@
   <.header class="w-full text-center" header_class="text-xl md:text-4xl font-bold">
     Room <code><%= @room_code %></code>
   </.header>
-  <.list>
-    <:item :for={player <- @room.players} title={player.name}>
-      <%= if player.id == @room.host_id do %>
-        <span class="inline-flex items-center rounded-md bg-blue-50 mx-2 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-          HOST
-        </span>
-      <% end %>
-    </:item>
-  </.list>
+  <div class="mt-8">
+    <.players_component room={@room} />
+  </div>
   <div :if={@room.active_game != nil} class="mt-8 flex flex-col gap-4">
     <.button phx-click="back" size={:responsive} variant={:secondary}>
-      Exit game
+      End game
     </.button>
     <.button phx-click="again" size={:responsive}>
       Restart game
+    </.button>
+  </div>
+  <div :if={@room.active_game == nil} class="mt-8 flex flex-col gap-4">
+    <%!-- Fix later, should quit room properly --%>
+    <.button phx-click={JS.navigate("/")} size={:responsive}>
+      Quit room
     </.button>
   </div>
 </.modal>

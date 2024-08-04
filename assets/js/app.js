@@ -57,3 +57,11 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+window.addEventListener("playground_web:clipcopy", (event) => {
+  if ("clipboard" in navigator) {
+    const text = event.detail.target;
+    navigator.clipboard.writeText(text);
+  } else {
+    alert("Sorry, your browser does not support clipboard copy.");
+  }
+});

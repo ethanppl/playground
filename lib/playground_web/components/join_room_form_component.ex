@@ -79,6 +79,10 @@ defmodule PlaygroundWeb.JoinRoomFormComponent do
           helper="Enter the 4 letters room code from your friend"
           class="uppercase"
           autocomplete="off"
+          phx-target={@myself}
+          phx-mounted={
+            if @form[:code].value == "", do: JS.focus() |> IO.inspect(label: "focus room code")
+          }
         />
         <.input
           field={@form[:player_name]}
@@ -86,6 +90,10 @@ defmodule PlaygroundWeb.JoinRoomFormComponent do
           label="NAME"
           helper="Enter your name, a name recognizable by your friends :)"
           class="uppercase"
+          phx-target={@myself}
+          phx-connected={
+            if @form[:code].value != "", do: JS.focus() |> IO.inspect(label: "focus player")
+          }
         />
         <:actions>
           <.button phx-disable-with="Joining...">Join!</.button>
@@ -105,7 +113,7 @@ defmodule PlaygroundWeb.JoinRoomFormComponent do
     changeset =
       JoinRoom.changeset(
         %JoinRoom{},
-        %{player_name: "", code: ""},
+        %{player_name: "", code: assigns.room["room_code"]},
         validate_length: false
       )
 

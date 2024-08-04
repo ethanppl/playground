@@ -21,9 +21,11 @@ defmodule PlaygroundWeb.HomeLive do
     assign(socket, :page_title, "New Room")
   end
 
-  defp apply_action(socket, :join, _params) do
+  defp apply_action(socket, :join, params) do
+    room_code = Map.get(params, "code", "")
+
     socket
     |> assign(:page_title, "Join Room")
-    |> assign(:room, %{"id" => nil, "room_code" => "", "host_name" => ""})
+    |> assign(:room, %{"id" => nil, "room_code" => room_code, "host_name" => ""})
   end
 end

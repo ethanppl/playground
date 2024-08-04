@@ -49,6 +49,7 @@ defmodule PlaygroundWeb.NewRoomFormComponent do
           label="NAME"
           helper="Enter your name, a name recognizable by your friends :)"
           class="uppercase"
+          phx-mounted={JS.focus()}
         />
         <:actions>
           <.button phx-disable-with="Creating...">Create!</.button>

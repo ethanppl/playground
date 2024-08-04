@@ -85,6 +85,7 @@ defmodule PlaygroundWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import PlaygroundWeb.CoreComponents
+      import PlaygroundWeb.RoomComponents
       import PlaygroundWeb.Gettext
 
       # Shortcut for generating JS commands

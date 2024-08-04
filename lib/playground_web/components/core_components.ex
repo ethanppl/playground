@@ -604,13 +604,15 @@ defmodule PlaygroundWeb.CoreComponents do
         <:item title="Views"><%= @post.views %></:item>
       </.list>
   """
+  attr :class, :string, default: nil
+
   slot :item, required: true do
     attr :title, :string, required: true
   end
 
   def list(assigns) do
     ~H"""
-    <div class="mt-14">
+    <div class={["mt-14", @class]}>
       <dl class="-my-4 divide-y divide-zinc-100">
         <div :for={item <- @item} class="flex gap-4 py-4 text-sm leading-6 sm:gap-8">
           <dt class="w-1/4 flex-none text-zinc-500"><%= item.title %></dt>
@@ -669,6 +671,34 @@ defmodule PlaygroundWeb.CoreComponents do
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
     <span class={[@name, @class]} />
+    """
+  end
+
+  @doc """
+  Component for copying a string
+
+  ## Examples
+
+      <.copyable content="string" />
+  """
+  attr :content, :string, required: true
+
+  def copyable(assigns) do
+    ~H"""
+    <span>
+      <code class="select-all bg-zinc-100 border-solid border-1 border-gray-200 rounded text-gray-800 text-[85%] py-1 px-2">
+        <%= @content %>
+      </code>
+      <button
+        phx-click={
+          JS.dispatch("playground_web:clipcopy", detail: %{target: @content})
+          |> JS.transition({"ease-out duration-300", "opacity-0", "opacity-100"})
+        }
+        type="button"
+      >
+        <.icon name="hero-clipboard-document" class="h-4 w-4" />
+      </button>
+    </span>
     """
   end
 
