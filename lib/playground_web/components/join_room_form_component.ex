@@ -80,9 +80,7 @@ defmodule PlaygroundWeb.JoinRoomFormComponent do
           class="uppercase"
           autocomplete="off"
           phx-target={@myself}
-          phx-mounted={
-            if @form[:code].value == "", do: JS.focus() |> IO.inspect(label: "focus room code")
-          }
+          phx-mounted={if @form[:code].value == "", do: JS.focus()}
         />
         <.input
           field={@form[:player_name]}
@@ -91,9 +89,7 @@ defmodule PlaygroundWeb.JoinRoomFormComponent do
           helper="Enter your name, a name recognizable by your friends :)"
           class="uppercase"
           phx-target={@myself}
-          phx-connected={
-            if @form[:code].value != "", do: JS.focus() |> IO.inspect(label: "focus player")
-          }
+          phx-connected={if @form[:code].value != "", do: JS.focus()}
         />
         <:actions>
           <.button phx-disable-with="Joining...">Join!</.button>
