@@ -88,6 +88,7 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLettersLetter
   end
 
   @impl Phoenix.LiveComponent
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def update(assigns, socket) do
     is_publicly_guessed = assigns.letter_guess != nil
     is_privately_guessed = assigns.word_guess["guessed_correctly"]
@@ -489,7 +490,7 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLetters do
       end)
 
     is_won =
-      Playground.Games.MultiHangman.is_player_won?(assigns.game.state, assigns.player_id)
+      Playground.Games.MultiHangman.player_won?(assigns.game.state, assigns.player_id)
 
     is_ended =
       Enum.count(assigns.game.state["winners"]) == Enum.count(assigns.players)

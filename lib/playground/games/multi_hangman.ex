@@ -153,7 +153,7 @@ defmodule Playground.Games.MultiHangman do
     |> maybe_update_next_player_after_word_guess(player_id)
   end
 
-  def is_player_won?(state, player_id) do
+  def player_won?(state, player_id) do
     string_player_id = "#{player_id}"
 
     state["word_guesses"][string_player_id]
@@ -201,7 +201,7 @@ defmodule Playground.Games.MultiHangman do
   end
 
   defp maybe_update_winners(state, player_id) do
-    if is_player_won?(state, player_id) do
+    if player_won?(state, player_id) do
       Map.put(state, "winners", [player_id | state["winners"]])
     else
       state
@@ -209,7 +209,7 @@ defmodule Playground.Games.MultiHangman do
   end
 
   defp maybe_update_next_player_after_word_guess(state, player_id) do
-    if is_player_won?(state, player_id) do
+    if player_won?(state, player_id) do
       set_next_player(state, player_id)
     else
       state

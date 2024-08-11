@@ -1,4 +1,8 @@
 defmodule PlaygroundWeb.RoomComponents do
+  @moduledoc """
+  Provides the UI components used in the room page.
+  """
+
   use Phoenix.Component
 
   alias PlaygroundWeb.CoreComponents

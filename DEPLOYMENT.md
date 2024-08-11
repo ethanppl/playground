@@ -1,6 +1,6 @@
 ## Deployment
 
-Notes for deploying this in self-hosted environment.
+Notes for deploying this in a self-hosted environment.
 
 1. Install Docker
    1. https://docs.docker.com/engine/install/ubuntu/
@@ -163,6 +163,11 @@ Notes for deploying this in self-hosted environment.
    Read more: https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Secret.html
 
 1. Run the playground image
+
+   > There is a small downtime with this method, existing connections will be
+   > dropped, but not too problematic. The alternative is to start the new
+   > container, add to network, run the migration, and then flip the proxy in
+   > nginx.
 
    - Change the password and the IP address for the DB
    - Change the secret to the secret generated in the previous step

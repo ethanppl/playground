@@ -66,12 +66,7 @@ defmodule PlaygroundWeb.RoomLive do
       ) do
     integer_player_id = socket.assigns.player_id
     string_player_id = "#{socket.assigns.player_id}"
-
-    duration =
-      case payload[:duration] do
-        nil -> 3000
-        _non_nil -> payload.duration
-      end
+    duration = Map.get(payload, :duration, 3000)
 
     case receiver do
       %{type: :broadcast} ->
@@ -84,10 +79,10 @@ defmodule PlaygroundWeb.RoomLive do
         {:noreply, put_flash_and_schedule_clear(socket, type, message, duration)}
 
       %{type: :broadcast_except, except: except} ->
-        if not Enum.any?(except, &(&1 == string_player_id or &1 == integer_player_id)) do
-          {:noreply, put_flash_and_schedule_clear(socket, type, message, duration)}
-        else
+        if Enum.any?(except, &(&1 == string_player_id or &1 == integer_player_id)) do
           {:noreply, socket}
+        else
+          {:noreply, put_flash_and_schedule_clear(socket, type, message, duration)}
         end
 
       _others ->
