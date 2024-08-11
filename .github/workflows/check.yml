@@ -17,7 +17,7 @@ jobs:
       db:
         image: postgres:16
         ports:
-          - 5432/tcp
+          - 5432:5432
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
@@ -109,12 +109,12 @@ jobs:
       - name: Setup db
         env:
           POSTGRES_HOST: localhost
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+          POSTGRES_PORT: 5432
         run: mix ecto.setup
 
       # Step: Execute the tests.
       - name: Run tests
         env:
           POSTGRES_HOST: localhost
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+          POSTGRES_PORT: 5432
         run: mix test
