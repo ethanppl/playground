@@ -16,9 +16,12 @@ jobs:
     services:
       db:
         image: postgres:16
-        ports: ["5432:5432"]
+        ports:
+          - 5432/tcp
         env:
           POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: playground_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -102,6 +105,16 @@ jobs:
       - name: Check Credo
         run: mix credo
 
+      # Step: Setup the database for the tests.
+      - name: Setup db
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+        run: mix ecto.setup
+
       # Step: Execute the tests.
       - name: Run tests
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
         run: mix test
