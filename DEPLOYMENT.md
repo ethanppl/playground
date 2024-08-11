@@ -169,12 +169,23 @@ Notes for deploying this in a self-hosted environment.
    > container, add to network, run the migration, and then flip the proxy in
    > nginx.
 
+   First, if an older version of the playground container is already running,
+   stop it and remove it before creating a new one
+
+   ```
+   docker stop playground
+   docker rm playground
+   ```
+
+   Then run the new docker
+
    - Change the password and the IP address for the DB
    - Change the secret to the secret generated in the previous step
    - If the domain name is different, change the `PHX_HOST` env
 
    ```
    docker run --name playground \
+   --network=playgroundNetwork \
    --env=DATABASE_URL="postgresql://playground_backend:password@172.18.0.2:5432/playground_engine" \
    --env=MIGRATION_DATABASE_URL="postgresql://playground_migrations:password@172.18.0.2:5432/playground_engine" \
    --env=SECRET_KEY_BASE="secret" \
@@ -183,19 +194,7 @@ Notes for deploying this in a self-hosted environment.
    -d playground
    ```
 
-   It should fail to connect because the container is not connected to the `playgroundNetwork` network.
-
-   ```bash
-   docker network connect playgroundNetwork playground
-   ```
-
-   Restart again
-
-   ```bash
-   docker start playground
-   ```
-
-   Check it's up now
+   Check it's up now and running
 
    ```bash
    docker ps
