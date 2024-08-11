@@ -21,6 +21,7 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: "trust"
           POSTGRES_DB: playground_test
         options: >-
           --health-cmd pg_isready
