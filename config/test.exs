@@ -8,7 +8,7 @@ import Config
 config :playground, Playground.Repo,
   username: System.get_env("POSTGRES_USERNAME", "postgres"),
   password: System.get_env("POSTGRES_PASSWORD", "postgres"),
-  hostname: System.get_env("POSTGRES_HOSTNAME", "postgres"),
+  hostname: System.get_env("POSTGRES_HOSTNAME", "localhost"),
   database: "playground_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
