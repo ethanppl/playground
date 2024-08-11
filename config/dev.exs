@@ -4,7 +4,7 @@ import Config
 config :playground, Playground.Repo,
   username: System.get_env("POSTGRES_USERNAME", "postgres"),
   password: System.get_env("POSTGRES_PASSWORD", "postgres"),
-  hostname: System.get_env("POSTGRES_HOSTNAME", "postgres"),
+  hostname: System.get_env("POSTGRES_HOSTNAME", "localhost"),
   database: "playground_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
