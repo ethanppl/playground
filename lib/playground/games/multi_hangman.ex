@@ -6,7 +6,7 @@ defmodule Playground.Games.MultiHangman do
   @behaviour Playground.Games
 
   @game_id "multi-hangman"
-  @name "Multi Hangman"
+  @name "Super Hangman"
   @min_players 2
   @max_players 4
 
@@ -63,7 +63,7 @@ defmodule Playground.Games.MultiHangman do
       "winners" => []
     }
 
-    Game.create_changeset(%Game{}, %{room_id: room.id, type: "multi-hangman", state: state})
+    Game.create_changeset(%Game{}, %{room_id: room.id, type: @game_id, state: state})
   end
 
   defp generate_player_map(players, value) do

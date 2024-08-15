@@ -1,14 +1,24 @@
-defmodule Playground.Games.TicTacToe do
+defmodule Playground.Games.SuperTicTacToe do
   @moduledoc """
-  A module for the Tic Tac Toe game
+  A module for the Super Tic Tac Toe game
   """
 
   @behaviour Playground.Games
 
-  @game_id "tic-tac-toe"
-  @name "Tic Tac Toe"
+  @game_id "super-tic-tac-toe"
+  @name "Super Tic Tac Toe"
   @min_players 2
   @max_players 2
+  @eight_ways_of_winning [
+    {{0, 0}, {0, 1}, {0, 2}},
+    {{1, 0}, {1, 1}, {1, 2}},
+    {{2, 0}, {2, 1}, {2, 2}},
+    {{0, 0}, {1, 0}, {2, 0}},
+    {{0, 1}, {1, 1}, {2, 1}},
+    {{0, 2}, {1, 2}, {2, 2}},
+    {{0, 0}, {1, 1}, {2, 2}},
+    {{0, 2}, {1, 1}, {2, 0}}
+  ]
 
   alias Playground.DB.{Game, GameType, Room}
   alias Playground.Games
@@ -39,6 +49,17 @@ defmodule Playground.Games.TicTacToe do
   def create_game_changeset(%Room{} = room) do
     players = room.players |> Enum.map(& &1.id) |> Enum.shuffle()
 
+    empty_three_by_three = [
+      [nil, nil, nil],
+      [nil, nil, nil],
+      [nil, nil, nil]
+    ]
+
+    boards =
+      Enum.reduce(0..9, %{}, fn index, acc ->
+        Map.put(acc, "#{index}", empty_three_by_three)
+      end)
+
     state = %{
       "players" => %{
         "#{Enum.at(players, 0)}" => "x",
@@ -48,11 +69,8 @@ defmodule Playground.Games.TicTacToe do
         "x" => "#{Enum.at(players, 0)}",
         "o" => "#{Enum.at(players, 1)}"
       },
-      "board" => [
-        [nil, nil, nil],
-        [nil, nil, nil],
-        [nil, nil, nil]
-      ],
+      "boards" => boards,
+      "next_board" => "9",
       "turn" => "#{Enum.at(players, 0)}",
       "winner" => nil
     }
@@ -75,75 +93,126 @@ defmodule Playground.Games.TicTacToe do
     another_player = state["players"] |> Map.keys() |> Enum.find(&(&1 != "#{player_id}"))
 
     cond do
+      # Not the player turn
       state["turn"] != "#{player_id}" ->
         state
 
-      get_cell(state["board"], move.row, move.col) != nil ->
+      # Cannot directly make a move on board 9
+      move.board_id == "9" ->
+        state
+
+      # The cell is not empty
+      get_cell(state["boards"], move.board_id, move.row, move.col) != nil ->
         state
 
       true ->
-        new_row = List.replace_at(Enum.at(state["board"], move.row), move.col, player_symbol)
-        new_board = List.replace_at(state["board"], move.row, new_row)
+        new_boards = set_cell(state["boards"], move.board_id, move.row, move.col, player_symbol)
 
         state
-        |> Map.put("board", new_board)
+        |> Map.put("boards", new_boards)
         |> Map.put("turn", another_player)
-        |> maybe_set_winner()
+        |> maybe_set_winner(move.board_id)
+        |> set_next_board(move.row, move.col)
         |> maybe_send_notification(support)
     end
+  end
+
+  defp set_cell(boards, board_id, row, col, value) do
+    new_row =
+      boards
+      |> Map.get(board_id)
+      |> Enum.at(row)
+      |> List.replace_at(col, value)
+
+    new_board =
+      boards
+      |> Map.get(board_id)
+      |> List.replace_at(row, new_row)
+
+    Map.put(boards, board_id, new_board)
+  end
+
+  defp get_cell(boards, board_id, row, column) do
+    boards |> Map.get(board_id) |> Enum.at(row) |> Enum.at(column)
   end
 
   defp get_cell(board, row, column) do
     board |> Enum.at(row) |> Enum.at(column)
   end
 
-  defp maybe_set_winner(state) do
-    board = state["board"]
+  defp set_next_board(state, row, col) do
+    board_num = row * 3 + col
+    board_is_full = board_is_full?(state["boards"]["#{board_num}"])
+    board_is_won = state["boards"]["9"] |> Enum.at(row) |> Enum.at(col) != nil
 
-    eight_ways_of_winning = [
-      {{0, 0}, {0, 1}, {0, 2}},
-      {{1, 0}, {1, 1}, {1, 2}},
-      {{2, 0}, {2, 1}, {2, 2}},
-      {{0, 0}, {1, 0}, {2, 0}},
-      {{0, 1}, {1, 1}, {2, 1}},
-      {{0, 2}, {1, 2}, {2, 2}},
-      {{0, 0}, {1, 1}, {2, 2}},
-      {{0, 2}, {1, 1}, {2, 0}}
-    ]
+    next_board_num =
+      if board_is_full or board_is_won do
+        "9"
+      else
+        "#{board_num}"
+      end
+
+    Map.put(state, "next_board", next_board_num)
+  end
+
+  defp maybe_set_winner(state, board_id) do
+    board = Map.get(state["boards"], board_id)
 
     winning_way =
-      Enum.find(eight_ways_of_winning, fn {{ar, ac}, {br, bc}, {cr, cc}} ->
+      Enum.find(@eight_ways_of_winning, fn {{ar, ac}, {br, bc}, {cr, cc}} ->
         get_cell(board, ar, ac) == get_cell(board, br, bc) and
           get_cell(board, br, bc) == get_cell(board, cr, cc) and
           get_cell(board, ar, ac) != nil
       end)
 
-    case winning_way do
-      nil ->
+    case {winning_way, board_id} do
+      {nil, _board_id} ->
         maybe_draw(state)
 
-      {{row, col}, _cell, _cell2} ->
+      {{{row, col}, _cell, _cell2}, "9"} ->
         winning_symbol = get_cell(board, row, col)
         Map.put(state, "winner", state["symbols"][winning_symbol])
+
+      {{{row, col}, _cell, _cell2}, board_id} ->
+        winning_symbol = get_cell(board, row, col)
+        {row, col} = get_row_col_from_board_id(board_id)
+
+        new_boards = set_cell(state["boards"], "9", row, col, winning_symbol)
+        new_state = Map.put(state, "boards", new_boards)
+
+        maybe_set_winner(new_state, "9")
     end
   end
 
   defp maybe_draw(state) do
-    board = state["board"]
+    all_board_is_full_or_won =
+      Enum.all?(0..9, fn board_num ->
+        board_is_full?(state["boards"]["#{board_num}"]) or
+          state["boards"]["9"] |> Enum.at(floor(board_num / 3)) |> Enum.at(rem(board_num, 3)) !=
+            nil
+      end)
 
-    if board_is_full?(board) do
+    if all_board_is_full_or_won do
       Map.put(state, "winner", "draw")
     else
       state
     end
   end
 
-  defp board_is_full?(board) do
+  def board_is_full?(board) do
     Enum.all?(board, fn row -> row_is_full?(row) end)
   end
 
   defp row_is_full?(row) do
     Enum.all?(row, fn cell -> cell != nil end)
+  end
+
+  defp get_row_col_from_board_id(board_id) do
+    board_num = String.to_integer(board_id)
+    row = floor(board_num / 3)
+    col = rem(board_num, 3)
+
+    {row, col}
   end
 
   defp maybe_send_notification(state, %{

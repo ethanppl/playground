@@ -74,6 +74,15 @@
   />
 <% end %>
 
+<%= if not is_nil(@room.active_game) and @room.active_game.type == "super-tic-tac-toe" do %>
+  <.live_component
+    id={:super_tic_tac_toe}
+    module={PlaygroundWeb.GamesComponents.SuperTicTacToeComponent}
+    game={@room.active_game}
+    player_id={@player_id}
+  />
+<% end %>
+
 <div class="absolute top-4 right-4">
   <button phx-click="open_info_modal">
     <.icon name="hero-information-circle-mini" class="h-5 w-5" />
