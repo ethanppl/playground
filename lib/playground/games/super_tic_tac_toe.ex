@@ -143,7 +143,7 @@ defmodule Playground.Games.SuperTicTacToe do
   defp set_next_board(state, row, col) do
     board_num = row * 3 + col
     board_is_full = board_is_full?(state["boards"]["#{board_num}"])
-    board_is_won = state["boards"]["9"] |> Enum.at(row) |> Enum.at(col) != nil
+    board_is_won = get_cell(state["boards"], "9", row, col) != nil
 
     next_board_num =
       if board_is_full or board_is_won do

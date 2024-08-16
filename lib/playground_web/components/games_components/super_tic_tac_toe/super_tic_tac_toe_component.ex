@@ -46,7 +46,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
         <div class="mt-12 w-10/12 aspect-square grid grid-cols-3">
           <%= Enum.map(0..8, fn board_num -> %>
             <div class="relative">
-              <%= case @game.state["boards"]["9"] |> Enum.at(floor(board_num/3)) |> Enum.at(rem(board_num, 3)) do %>
+              <%= case get_cell(@game.state["boards"], "9", floor(board_num/3), rem(board_num, 3)) do %>
                 <% nil -> %>
                   <div></div>
                 <% "x" -> %>
@@ -61,9 +61,8 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
               <div class={[
                 "w-full border aspect-square grid grid-cols-3",
                 board_is_disabled?(@game.state, board_num) && "opacity-30",
-                @game.state["boards"]["9"]
-                |> Enum.at(floor(board_num / 3))
-                |> Enum.at(rem(board_num, 3)) != nil && "opacity-30",
+                get_cell(@game.state["boards"], "9", floor(board_num / 3), rem(board_num, 3)) != nil &&
+                  "opacity-30",
                 @game.state["turn"] != "#{@player_id}" &&
                   not board_is_disabled?(@game.state, board_num) && "opacity-50",
                 @game.state["winner"] != nil && "opacity-30"
@@ -149,5 +148,9 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
       true ->
         true
     end
+  end
+
+  def get_cell(boards, board_id, row, column) do
+    boards |> Map.get(board_id) |> Enum.at(row) |> Enum.at(column)
   end
 end
