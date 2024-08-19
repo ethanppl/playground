@@ -1,4 +1,4 @@
-defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLettersChangeset do
+defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLettersChangeset do
   @moduledoc """
   A typed schema for the guess letters form
   """
@@ -17,7 +17,7 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLettersChange
   end
 end
 
-defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessWordsChangeset do
+defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessWordsChangeset do
   @moduledoc """
   A typed schema for the guess words form
   """
@@ -37,7 +37,7 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessWordsChangese
   end
 end
 
-defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLettersLetter do
+defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLettersLetter do
   @moduledoc """
   A component for a multiplayer hangman game
   """
@@ -123,15 +123,15 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLettersLetter
   end
 end
 
-defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLetters do
+defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
   @moduledoc """
   A component for a multiplayer hangman game
   """
 
   use PlaygroundWeb, :live_component
 
-  alias PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLettersChangeset
-  alias PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessWordsChangeset
+  alias PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLettersChangeset
+  alias PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessWordsChangeset
 
   @impl Phoenix.LiveComponent
   def render(assigns) do
@@ -223,7 +223,7 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLetters do
                       <.live_component
                         id={"multi_hangman_guess_letters_letter_" <> id <> "#{idx}"}
                         module={
-                          PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLettersLetter
+                          PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLettersLetter
                         }
                         type="secret"
                         letter={String.at(word, idx)}
@@ -264,7 +264,7 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLetters do
               <%= for idx <- 0..String.length(word) - 1 do %>
                 <.live_component
                   id={"multi_hangman_guess_letters_letter_mobile_" <> id <> "#{idx}"}
-                  module={PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLettersLetter}
+                  module={PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLettersLetter}
                   type="secret"
                   letter={String.at(word, idx)}
                   letter_guess={@game.state["letter_guesses"][String.at(word, idx)]}
@@ -290,7 +290,7 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLetters do
               <div class="flex flex-col items-center gap-1">
                 <.live_component
                   id={"multi_hangman_guess_history_" <> "#{idx}#{player_id}"}
-                  module={PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLettersLetter}
+                  module={PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLettersLetter}
                   type="history"
                   is_correct={is_correct}
                   letter={guess}
@@ -329,7 +329,7 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLetters do
             <%= for idx <- 0..String.length(@game.state["words"][@guess_word_modal_data.id]) - 1 do %>
               <.live_component
                 id={"multi_hangman_guess_letters_letter_" <> @guess_word_modal_data.id <> "#{idx}"}
-                module={PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLettersLetter}
+                module={PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLettersLetter}
                 type="secret"
                 letter={String.at(@game.state["words"][@guess_word_modal_data.id], idx)}
                 letter_guess={
@@ -490,7 +490,7 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLetters do
       end)
 
     is_won =
-      Playground.Games.MultiHangman.player_won?(assigns.game.state, assigns.player_id)
+      Playground.Games.SuperHangman.player_won?(assigns.game.state, assigns.player_id)
 
     is_ended =
       Enum.count(assigns.game.state["winners"]) == Enum.count(assigns.players)

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - List games page
 
+### Changed
+
+- Replace all `multi-hangman` with `super-hangman`
+
 ## [0.2.0] - 2024-08-16
 
 ### Added
@@ -19,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Rename multi hangman to super hangman
+- Name the Multi Hangman game as Super Hangman
 
 ## [0.1.1] - 2024-08-11
 

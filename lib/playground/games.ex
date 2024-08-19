@@ -4,14 +4,14 @@ defmodule Playground.Games do
   """
 
   alias Playground.DB.{Game, GameType, Room}
-  alias Playground.Games.{MultiHangman, SuperTicTacToe, TicTacToe}
+  alias Playground.Games.{SuperHangman, SuperTicTacToe, TicTacToe}
 
   require Ecto.Query
 
   @games %{
     "tic-tac-toe" => TicTacToe,
     "super-tic-tac-toe" => SuperTicTacToe,
-    "multi-hangman" => MultiHangman
+    "super-hangman" => SuperHangman
   }
 
   @doc """

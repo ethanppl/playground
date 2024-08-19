@@ -64,10 +64,10 @@
   />
 <% end %>
 
-<%= if not is_nil(@room.active_game) and @room.active_game.type == "multi-hangman" do %>
+<%= if not is_nil(@room.active_game) and @room.active_game.type == "super-hangman" do %>
   <.live_component
     id={:multi_hangman}
-    module={PlaygroundWeb.GamesComponents.MultiHangmanComponent}
+    module={PlaygroundWeb.GamesComponents.SuperHangmanComponent}
     game={@room.active_game}
     players={@room.players}
     player_id={@player_id}
