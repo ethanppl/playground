@@ -2,10 +2,10 @@
   Welcome to the Playground!
 </.header>
 
-<div class="flex flex-col mt-12">
-  <div class="border rounded text-center my-6 hover:bg-zinc-100">
+<div class="flex flex-col mt-12 gap-6">
+  <div class="border rounded text-center hover:bg-zinc-100">
     <.link patch={~p"/new"}>
-      <div class="py-24">
+      <div class="py-20">
         <.header header_class="text-xl font-semibold">
           Create a Room
           <:subtitle>
@@ -15,9 +15,9 @@
       </div>
     </.link>
   </div>
-  <div class="border rounded text-center my-6 hover:bg-zinc-100">
+  <div class="border rounded text-center hover:bg-zinc-100">
     <.link patch={~p"/join"}>
-      <div class="py-24">
+      <div class="py-20">
         <.header header_class="text-xl font-semibold">
           Join a Room with a Code
           <:subtitle>
@@ -25,6 +25,17 @@
           </:subtitle>
         </.header>
       </div>
+    </.link>
+  </div>
+  <div class="text-center mt-8">
+    <.link
+      navigate={~p"/games"}
+      class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+    >
+      <span>
+        See Games
+      </span>
+      <.icon name="hero-arrow-right-solid" class="h-3 w-3" />
     </.link>
   </div>
 </div>
