@@ -213,29 +213,23 @@ Notes for deploying this in a self-hosted environment.
    1. Edit the config:
 
       - If the domain name is different, change the `server_name`
+      - Create `playground.conf` in the directory that is included in
+        `/etc/nginx/nginx.conf`, e.g. `/etc/nginx/conf.d/`
 
       ```bash
-      sudo vim /etc/nginx/nginx.conf
+      sudo vim /etc/nginx/conf.d/playground.conf
       ```
 
+      Add the following:
+
       ```
-      user  nginx;
-      worker_processes  auto;
+      server {
+         listen 80;
+         server_name playground.ethanppl.com;
 
-      # other stuff
-
-      http {
-
-          # other stuff
-
-          server {
-              listen 80;
-              server_name playground.ethanppl.com;
-
-              location / {
-                  proxy_pass http://localhost:4000;
-              }
-          }
+         location / {
+            proxy_pass http://localhost:4000;
+         }
       }
       ```
 
@@ -255,5 +249,56 @@ Notes for deploying this in a self-hosted environment.
 
    - If using Ubuntu: https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal
    - Otherwise check the docs: https://letsencrypt.org/getting-started/
+
+1. Add HTTP/2 and HTTP/3 Support
+
+   - Edit `/etc/nginx/conf.d/playground.conf`:
+   - HTTP/2:
+     - Add `http2 on`
+   - HTTP/3:
+     - Add `http3 on`
+     - Add `listen 443 quic reuseport`, or just `listen 443 quic`
+     - If there are multiple servers using the same IP address and port in
+       nginx, only one of them can do `reuseport`
+     - In the location block, add `add_header Alt-Svc 'h3=":443"; ma=86400'`
+     - The port used by `quic` is recommended to be the same as the port for
+       `ssl`
+
+   Final result should look something like this:
+
+   ```
+   server {
+      server_name  playground.ethanppl.com;
+
+      http2 on;
+      http3 on;
+
+      location / {
+         proxy_pass http://localhost:4000;
+
+         add_header Alt-Svc 'h3=":443"; ma=86400';
+      }
+
+      listen 443 ssl; # managed by Certbot
+      listen 443 quic reuseport;
+
+      ssl_certificate /etc/letsencrypt/live/playground.ethanppl.com/fullchain.pem; # managed by Certbot
+      ssl_certificate_key /etc/letsencrypt/live/playground.ethanppl.com/privkey.pem; # managed by Certbot
+      include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+      ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+   }
+
+   server {
+      if ($host = playground.ethanppl.com) {
+         return 301 https://$host$request_uri;
+      } # managed by Certbot
+
+
+      listen       80;
+      server_name  playground.ethanppl.com;
+      return 404; # managed by Certbot
+   }
+   ```
 
 Done!
