@@ -151,7 +151,7 @@ Notes for deploying this in a self-hosted environment.
 
    # Get the IP address of the postgres container
    # Should find something like 127.18.0.2
-   docker netwokr inspect playgroundNetwork
+   docker network inspect playgroundNetwork
    ```
 
 1. Generate a secret
@@ -302,3 +302,41 @@ Notes for deploying this in a self-hosted environment.
    ```
 
 Done!
+
+## Release
+
+Notes for how I release new versions right now:
+
+1. Tag the latest version to release locally
+
+   ```bash
+   git tag -a v0.x.x -m "Feature"
+   ```
+
+1. Push the new tag
+
+   ```bash
+   git push origin tag v0.x.x
+   ```
+
+1. In the self-hosted machine, change directory into the repository and pull the latest changes
+
+   ```bash
+   git pull
+   ```
+
+1. Checkout the latest version
+
+   ```bash
+   git checkout v0.x.x
+   ```
+
+1. Build the new docker image, same command as above
+
+   ```bash
+   docker buildx build -t playground .
+   ```
+
+1. Run the playground image, see above
+
+Writing a script to automate this is also simple to do
