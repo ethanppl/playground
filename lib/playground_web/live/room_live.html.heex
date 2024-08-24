@@ -23,33 +23,45 @@
         "border border-1 rounded-lg",
         not game.disabled && "hover:scale-105 duration-150"
       ]}>
-        <button
-          class={[
-            "phx-submit-loading:opacity-75 rounded-lg px-3",
-            game.disabled && "cursor-not-allowed opacity-50"
-          ]}
-          phx-click="pick_game"
-          phx-value-game_id={game.game_id}
-          disabled={game.disabled}
-        >
-          <img
-            src={"/images/games/#{game.game_id}.png"}
-            class="w-11/12 aspect-square mx-auto p-2"
-          />
-          <div class="flex flex-row justify-between py-2 px-2">
-            <span class="font-bold"><%= game.name %></span>
-            <div class="flex flex-row gap-1 items-center">
-              <span>
-                <%= if game.min_players == game.max_players do %>
-                  <%= game.min_players %>
-                <% else %>
-                  <%= game.min_players %> - <%= game.max_players %>
-                <% end %>
-              </span>
-              <.icon name="hero-users-solid" class="w-4 h-4" />
+        <div class="relative">
+          <button
+            class={[
+              "phx-submit-loading:opacity-75 rounded-lg px-3",
+              game.disabled && "cursor-not-allowed opacity-50"
+            ]}
+            phx-click="pick_game"
+            phx-value-game_id={game.game_id}
+            disabled={game.disabled}
+          >
+            <img
+              src={"/images/games/#{game.game_id}.png"}
+              class="w-11/12 aspect-square mx-auto p-2"
+            />
+            <div class="flex flex-row justify-between py-2 px-2">
+              <span class="font-bold"><%= game.name %></span>
+              <div class="flex flex-row gap-1 items-center">
+                <span>
+                  <%= if game.min_players == game.max_players do %>
+                    <%= game.min_players %>
+                  <% else %>
+                    <%= game.min_players %> - <%= game.max_players %>
+                  <% end %>
+                </span>
+                <.icon name="hero-users-solid" class="w-4 h-4" />
+              </div>
             </div>
+          </button>
+          <div class="absolute top-2 right-2">
+            <%!-- The padding is a trick to make the button larger --%>
+            <button
+              class="pb-6 pl-6"
+              phx-click="toggle-how-to-play"
+              phx-value-game_id={game.game_id}
+            >
+              <.icon name="hero-question-mark-circle-mini" class="h-6 w-6" />
+            </button>
           </div>
-        </button>
+        </div>
       </div>
     </div>
   </div>
@@ -97,25 +109,20 @@
 >
   <div :if={@info_modal_show_how_to_play}>
     <.header class="w-full text-center mt-2 mb-8" header_class="text-xl md:text-2xl font-bold">
-      <%= Playground.Games.get_game_details(@room.active_game.type).name %>
+      <%= @info_modal_show_how_to_play.name %>
     </.header>
     <.live_component
       id={:how_to_play_modal}
       module={
-        case @room.active_game.type do
+        case @info_modal_show_how_to_play.game_id do
           "super-hangman" -> PlaygroundWeb.GamesComponents.SuperHangmanComponent.HowToPlay
           "super-tic-tac-toe" -> PlaygroundWeb.GamesComponents.SuperTicTacToeComponent.HowToPlay
           "tic-tac-toe" -> PlaygroundWeb.GamesComponents.TicTacToeComponent.HowToPlay
           _any -> PlaygroundWeb.GamesComponents.HowToPlay
         end
       }
-      game={Playground.Games.get_game_details(@room.active_game.type)}
+      game={@info_modal_show_how_to_play}
     />
-    <div class="mt-16">
-      <.button phx-click="toggle-how-to-play" class="text-sm font-semibold" variant={:secondary}>
-        <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> Back
-      </.button>
-    </div>
   </div>
   <div :if={!@info_modal_show_how_to_play}>
     <.header class="w-full text-center" header_class="text-xl md:text-4xl font-bold">
@@ -125,7 +132,12 @@
       <.players_component room={@room} />
     </div>
     <div :if={@room.active_game != nil} class="mt-8 flex flex-col gap-4">
-      <.button phx-click="toggle-how-to-play" size={:responsive} variant={:secondary}>
+      <.button
+        phx-click="toggle-how-to-play"
+        phx-value-game_id={@room.active_game.type}
+        size={:responsive}
+        variant={:secondary}
+      >
         <.icon name="hero-question-mark-circle" class="h-4 w-4 pr-2" /> How to play
       </.button>
       <.button phx-click="back" size={:responsive} variant={:secondary}>

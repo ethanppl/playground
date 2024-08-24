@@ -15,9 +15,15 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent.HowToPlay do
       </p>
 
       <p>
-        A move in a small grid corresponds to the opponent's next small grid move.
-        Winning the small grid will win the corresponding grid in the large grid.
-        The goal is to win the big grid.
+        Each move in a small grid limits which small grid the opponent's next
+        move is in, indicated by the relative location of the move. If the small
+        grid is not available, the next move is not limited. Winning the small
+        grid will win the corresponding cell in the large grid. The goal is to
+        win the large grid.
+      </p>
+
+      <p>
+        Or just try it once and you will understand!
       </p>
 
       <div class="p-2">
@@ -34,11 +40,8 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent.HowToPlay do
           class="underline text-blue-500"
           target="_blank"
         >
-          read more about the game on Wikipedia
+          read more about the game on Wikipedia too
         </a>
-      </p>
-      <p>
-        Or try it once and you will understand!
       </p>
     </div>
     """
