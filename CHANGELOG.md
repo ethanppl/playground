@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - List games page
+- Add how to play instructions for each game
 
 ### Changed
 

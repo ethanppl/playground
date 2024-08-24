@@ -17,13 +17,14 @@ defmodule PlaygroundWeb.ListGamesLive do
   end
 
   defp apply_action(socket, :list, _params) do
-    socket
-    |> assign(:page_title, "List Games")
-    |> assign(:room, nil)
+    assign(socket, :page_title, "List Games")
   end
 
   defp apply_action(socket, :show, params) do
-    IO.inspect(params)
-    assign(socket, :page_title, "Game")
+    game_id = params["game"]
+
+    socket
+    |> assign(:page_title, Playground.Games.get_name(game_id))
+    |> assign(:game, Playground.Games.get_game_details(game_id))
   end
 end
