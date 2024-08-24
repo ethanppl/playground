@@ -95,24 +95,51 @@
   show
   on_cancel={JS.push("close_info_modal")}
 >
-  <.header class="w-full text-center" header_class="text-xl md:text-4xl font-bold">
-    Room <code><%= @room_code %></code>
-  </.header>
-  <div class="mt-8">
-    <.players_component room={@room} />
+  <div :if={@info_modal_show_how_to_play}>
+    <.header class="w-full text-center mt-2 mb-8" header_class="text-xl md:text-2xl font-bold">
+      <%= Playground.Games.get_game_details(@room.active_game.type).name %>
+    </.header>
+    <.live_component
+      id={:how_to_play_modal}
+      module={
+        case @room.active_game.type do
+          "super-hangman" -> PlaygroundWeb.GamesComponents.SuperHangmanComponent.HowToPlay
+          "super-tic-tac-toe" -> PlaygroundWeb.GamesComponents.SuperTicTacToeComponent.HowToPlay
+          "tic-tac-toe" -> PlaygroundWeb.GamesComponents.TicTacToeComponent.HowToPlay
+          _any -> PlaygroundWeb.GamesComponents.HowToPlay
+        end
+      }
+      game={Playground.Games.get_game_details(@room.active_game.type)}
+    />
+    <div class="mt-16">
+      <.button phx-click="toggle-how-to-play" class="text-sm font-semibold" variant={:secondary}>
+        <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> Back
+      </.button>
+    </div>
   </div>
-  <div :if={@room.active_game != nil} class="mt-8 flex flex-col gap-4">
-    <.button phx-click="back" size={:responsive} variant={:secondary}>
-      End game
-    </.button>
-    <.button phx-click="again" size={:responsive}>
-      Restart game
-    </.button>
-  </div>
-  <div :if={@room.active_game == nil} class="mt-8 flex flex-col gap-4">
-    <%!-- Fix later, should quit room properly --%>
-    <.button phx-click={JS.navigate("/")} size={:responsive}>
-      Quit room
-    </.button>
+  <div :if={!@info_modal_show_how_to_play}>
+    <.header class="w-full text-center" header_class="text-xl md:text-4xl font-bold">
+      Room <code><%= @room_code %></code>
+    </.header>
+    <div class="mt-8">
+      <.players_component room={@room} />
+    </div>
+    <div :if={@room.active_game != nil} class="mt-8 flex flex-col gap-4">
+      <.button phx-click="toggle-how-to-play" size={:responsive} variant={:secondary}>
+        <.icon name="hero-question-mark-circle" class="h-4 w-4 pr-2" /> How to play
+      </.button>
+      <.button phx-click="back" size={:responsive} variant={:secondary}>
+        <.icon name="hero-no-symbol" class="h-4 w-4 pr-2" /> End game
+      </.button>
+      <.button phx-click="again" size={:responsive}>
+        <.icon name="hero-arrow-path" class="h-4 w-4 pr-2" /> Restart game
+      </.button>
+    </div>
+    <div :if={@room.active_game == nil} class="mt-8 flex flex-col gap-4">
+      <%!-- Fix later, should quit room properly --%>
+      <.button phx-click={JS.navigate("/")} size={:responsive}>
+        Quit room
+      </.button>
+    </div>
   </div>
 </.modal>
