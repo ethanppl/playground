@@ -1,4 +1,4 @@
-defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent do
+defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent do
   @moduledoc """
   A component for a multiplayer hangman game
   """
@@ -13,14 +13,14 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent do
         <% "select-words" -> %>
           <.live_component
             id={:multi_hangman_select_word}
-            module={PlaygroundWeb.GamesComponents.MultiHangmanComponent.SelectWord}
+            module={PlaygroundWeb.GamesComponents.SuperHangmanComponent.SelectWord}
             game={@game}
             player_id={@player_id}
           />
         <% "guess-letters" -> %>
           <.live_component
             id={:multi_hangman_guess_letters}
-            module={PlaygroundWeb.GamesComponents.MultiHangmanComponent.GuessLetters}
+            module={PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters}
             game={@game}
             players={@players}
             player_id={@player_id}

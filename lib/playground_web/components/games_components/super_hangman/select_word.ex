@@ -1,4 +1,4 @@
-defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.SelectWordChangeset do
+defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.SelectWordChangeset do
   @moduledoc """
   A typed schema for the select word form
   """
@@ -17,14 +17,14 @@ defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.SelectWordChangese
   end
 end
 
-defmodule PlaygroundWeb.GamesComponents.MultiHangmanComponent.SelectWord do
+defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.SelectWord do
   @moduledoc """
   A component for a multiplayer hangman game
   """
 
   use PlaygroundWeb, :live_component
 
-  alias PlaygroundWeb.GamesComponents.MultiHangmanComponent.SelectWordChangeset
+  alias PlaygroundWeb.GamesComponents.SuperHangmanComponent.SelectWordChangeset
 
   @impl Phoenix.LiveComponent
   def render(assigns) do

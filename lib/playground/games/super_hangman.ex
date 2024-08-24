@@ -1,11 +1,11 @@
-defmodule Playground.Games.MultiHangman do
+defmodule Playground.Games.SuperHangman do
   @moduledoc """
   A module for a multiplayer hangman game
   """
 
   @behaviour Playground.Games
 
-  @game_id "multi-hangman"
+  @game_id "super-hangman"
   @name "Super Hangman"
   @min_players 2
   @max_players 4

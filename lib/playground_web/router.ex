@@ -22,6 +22,9 @@ defmodule PlaygroundWeb.Router do
     live "/join", HomeLive, :join
     live "/join/:code", HomeLive, :join
 
+    live "/games", ListGamesLive, :list
+    live "/games/:game", ListGamesLive, :show
+
     live "/rooms/:code", RoomLive, :index
 
     post "/new_room", RoomController, :new

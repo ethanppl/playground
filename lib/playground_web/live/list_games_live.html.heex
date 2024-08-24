@@ -1,0 +1,54 @@
+<.header class="w-full text-center" header_class="text-4xl font-bold">
+  All Games
+  <:subtitle>
+    Click to see how to play!
+  </:subtitle>
+</.header>
+
+<div class="mt-12 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div :for={game <- @games}>
+    <div class="border border-1 rounded-lg">
+      <button class="phx-submit-loading:opacity-75 rounded-lg px-3">
+        <.link patch={~p"/games/#{game.game_id}"}>
+          <img
+            src={"/images/games/#{game.game_id}.png"}
+            class="w-11/12 aspect-square mx-auto p-2"
+          />
+          <div class="flex flex-row justify-between py-2 px-2">
+            <span class="font-bold"><%= game.name %></span>
+            <div class="flex flex-row gap-1 items-center">
+              <span>
+                <%= if game.min_players == game.max_players do %>
+                  <%= game.min_players %>
+                <% else %>
+                  <%= game.min_players %> - <%= game.max_players %>
+                <% end %>
+              </span>
+              <.icon name="hero-users-solid" class="w-4 h-4" />
+            </div>
+          </div>
+        </.link>
+      </button>
+    </div>
+  </div>
+</div>
+
+<.modal :if={@live_action == :show} id="game-modal" show on_cancel={JS.patch(~p"/games")}>
+  <.header class="w-full text-center mt-2 mb-8" header_class="text-xl md:text-2xl font-bold">
+    <%= @game.name %>
+  </.header>
+  <.live_component
+    id={:how_to_play_modal}
+    module={
+      case @game.game_id do
+        "super-hangman" -> PlaygroundWeb.GamesComponents.SuperHangmanComponent.HowToPlay
+        "super-tic-tac-toe" -> PlaygroundWeb.GamesComponents.SuperTicTacToeComponent.HowToPlay
+        "tic-tac-toe" -> PlaygroundWeb.GamesComponents.TicTacToeComponent.HowToPlay
+        _any -> PlaygroundWeb.GamesComponents.HowToPlay
+      end
+    }
+    game={@game}
+  />
+</.modal>
+
+<.back navigate={~p"/"}>Home</.back>

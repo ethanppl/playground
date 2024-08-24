@@ -12,7 +12,8 @@ defmodule PlaygroundWeb.RoomLive do
      |> assign(:code_from_session, session["room_code"])
      |> assign(:player_id, session["user_id"])
      |> assign(:player_name, session["user_name"])
-     |> assign(:is_info_modal_open, false)}
+     |> assign(:is_info_modal_open, false)
+     |> assign(:info_modal_show_how_to_play, nil)}
   end
 
   @impl Phoenix.LiveView
@@ -165,12 +166,35 @@ defmodule PlaygroundWeb.RoomLive do
      |> assign(:is_info_modal_open, false)}
   end
 
+  def handle_event(
+        "toggle-how-to-play",
+        params,
+        socket
+      ) do
+    case socket.assigns[:info_modal_show_how_to_play] do
+      nil ->
+        %{"game_id" => game_id} = params
+        game_details = Playground.Games.get_game_details(game_id)
+
+        {:noreply,
+         socket
+         |> assign(:info_modal_show_how_to_play, game_details)
+         |> assign(:is_info_modal_open, true)}
+
+      _game_details ->
+        {:noreply, assign(socket, :info_modal_show_how_to_play, nil)}
+    end
+  end
+
   def handle_event("open_info_modal", _params, socket) do
     {:noreply, assign(socket, is_info_modal_open: true)}
   end
 
   def handle_event("close_info_modal", _params, socket) do
-    {:noreply, assign(socket, is_info_modal_open: false)}
+    {:noreply,
+     socket
+     |> assign(is_info_modal_open: false)
+     |> assign(info_modal_show_how_to_play: nil)}
   end
 
   def players_count(room) do
