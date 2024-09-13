@@ -50,54 +50,56 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
                 <% nil -> %>
                   <div></div>
                 <% "x" -> %>
-                  <div class="absolute w-full aspect-square flex item-center">
-                    <div class="m-auto w-10/12 aspect-square cross" />
+                  <div class="absolute w-full aspect-square flex item-center z-10">
+                    <div class="m-auto w-10/12 aspect-square cross-lg" />
                   </div>
                 <% "o" -> %>
-                  <div class="absolute w-full aspect-square flex item-center">
-                    <div class="m-auto w-10/12 aspect-square circle" />
+                  <div class="absolute w-full aspect-square flex item-center z-10">
+                    <div class="m-auto w-10/12 aspect-square circle-lg" />
                   </div>
               <% end %>
-              <div class={[
-                "w-full border aspect-square grid grid-cols-3",
-                board_is_disabled?(@game.state, board_num) && "opacity-30",
-                get_cell(@game.state["boards"], "9", floor(board_num / 3), rem(board_num, 3)) != nil &&
-                  "opacity-30",
-                @game.state["turn"] != "#{@player_id}" &&
-                  not board_is_disabled?(@game.state, board_num) && "opacity-50",
-                @game.state["winner"] != nil && "opacity-30"
-              ]}>
-                <%= @game.state["boards"]["#{board_num}"] |> Enum.with_index() |> Enum.map(fn({row, row_index}) -> %>
-                  <%= row |> Enum.with_index() |> Enum.map(fn({cell, col_index}) -> %>
-                    <%= case cell do %>
-                      <% nil -> %>
-                        <%= if @game.state["turn"] == "#{@player_id}" and is_nil(@game.state["winner"]) do %>
-                          <button
-                            class={[
-                              "border solid aspect-square flex item-center cursor-pointer",
-                              not board_is_disabled?(@game.state, board_num) && "hover:bg-gray-100"
-                            ]}
-                            disabled={board_is_disabled?(@game.state, board_num)}
-                            phx-target={@myself}
-                            phx-click="move"
-                            phx-value-row_index={row_index}
-                            phx-value-col_index={col_index}
-                            phx-value-board_id={board_num}
-                          />
-                        <% else %>
-                          <div class="border solid aspect-square flex item-center" />
-                        <% end %>
-                      <% "x" -> %>
-                        <div class="border solid aspect-square flex item-center">
-                          <div class="m-auto w-10/12 aspect-square cross" />
-                        </div>
-                      <% "o" -> %>
-                        <div class="border solid aspect-square flex item-center">
-                          <div class="m-auto w-10/12 aspect-square circle" />
-                        </div>
-                    <% end %>
+              <div class="w-full border-2 solid border-slate-300">
+                <div class={[
+                  "w-full aspect-square grid grid-cols-3",
+                  board_is_disabled?(@game.state, board_num) && "opacity-30",
+                  get_cell(@game.state["boards"], "9", floor(board_num / 3), rem(board_num, 3)) != nil &&
+                    "opacity-30",
+                  @game.state["turn"] != "#{@player_id}" &&
+                    not board_is_disabled?(@game.state, board_num) && "opacity-80",
+                  @game.state["winner"] != nil && "opacity-30"
+                ]}>
+                  <%= @game.state["boards"]["#{board_num}"] |> Enum.with_index() |> Enum.map(fn({row, row_index}) -> %>
+                    <%= row |> Enum.with_index() |> Enum.map(fn({cell, col_index}) -> %>
+                      <%= case cell do %>
+                        <% nil -> %>
+                          <%= if @game.state["turn"] == "#{@player_id}" and is_nil(@game.state["winner"]) do %>
+                            <button
+                              class={[
+                                "border solid border-slate-300 aspect-square flex item-center cursor-pointer",
+                                not board_is_disabled?(@game.state, board_num) && "hover:bg-gray-100"
+                              ]}
+                              disabled={board_is_disabled?(@game.state, board_num)}
+                              phx-target={@myself}
+                              phx-click="move"
+                              phx-value-row_index={row_index}
+                              phx-value-col_index={col_index}
+                              phx-value-board_id={board_num}
+                            />
+                          <% else %>
+                            <div class="border solid border-slate-300 aspect-square flex item-center" />
+                          <% end %>
+                        <% "x" -> %>
+                          <div class="border solid border-slate-300 aspect-square flex item-center">
+                            <div class="m-auto w-10/12 aspect-square cross" />
+                          </div>
+                        <% "o" -> %>
+                          <div class="border solid border-slate-300 aspect-square flex item-center">
+                            <div class="m-auto w-10/12 aspect-square circle" />
+                          </div>
+                      <% end %>
+                    <% end) %>
                   <% end) %>
-                <% end) %>
+                </div>
               </div>
             </div>
           <% end) %>
@@ -139,8 +141,15 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
 
   def board_is_disabled?(state, board_num) do
     cond do
-      state["next_board"] == "9" ->
+      state["winner"] != nil ->
+        true
+
+      state["next_board"] == "9" and
+          is_nil(get_cell(state["boards"], "9", floor(board_num / 3), rem(board_num, 3))) ->
         false
+
+      state["next_board"] == "9" ->
+        true
 
       state["next_board"] == "#{board_num}" ->
         false
