@@ -48,7 +48,6 @@ defmodule PlaygroundWeb.NewRoomFormComponent do
           type="text"
           label="NAME"
           helper="Enter your name, a name recognizable by your friends :)"
-          class="uppercase"
           phx-mounted={JS.focus()}
         />
         <:actions>

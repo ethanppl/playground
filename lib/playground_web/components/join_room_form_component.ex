@@ -87,7 +87,6 @@ defmodule PlaygroundWeb.JoinRoomFormComponent do
           type="text"
           label="NAME"
           helper="Enter your name, a name recognizable by your friends :)"
-          class="uppercase"
           phx-target={@myself}
           phx-connected={if @form[:code].value != "", do: JS.focus()}
         />
