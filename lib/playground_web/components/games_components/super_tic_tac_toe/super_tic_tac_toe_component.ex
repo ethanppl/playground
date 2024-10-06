@@ -35,15 +35,32 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
             </div>
           <% @game.state["turn"] == "#{@player_id}" -> %>
             <p>Your turn! You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %></p>
+            <div class="mt-8 text-sm font-normal font-mono text-slate-500 w-full flex flex-row justify-around">
+              <%= @current %>
+            </div>
           <% true -> %>
             <p>
               You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %>. Waiting...
             </p>
+            <div class="mt-8 text-sm font-normal font-mono text-slate-500 w-full flex flex-row justify-around">
+              <%= @current %>
+            </div>
         <% end %>
       </div>
 
+      <div class="mt-2 text-sm font-mono text-slate-500 w-full flex flex-row justify-around">
+        <div class="flex flex-row gap-4">
+          <span><%= find_player_name(@players, @game.state["symbols"]["x"]) %></span>
+          <span><%= @x_cumulative %></span>
+        </div>
+        <div class="flex flex-row gap-4">
+          <span><%= find_player_name(@players, @game.state["symbols"]["o"]) %></span>
+          <span><%= @o_cumulative %></span>
+        </div>
+      </div>
+
       <div class="flex justify-around">
-        <div class="mt-12 w-10/12 aspect-square grid grid-cols-3">
+        <div class="mt-6 w-10/12 aspect-square grid grid-cols-3">
           <%= Enum.map(0..8, fn board_num -> %>
             <div class="relative">
               <%= case get_cell(@game.state["boards"], "9", floor(board_num/3), rem(board_num, 3)) do %>
@@ -58,7 +75,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
                     <div class="m-auto w-10/12 aspect-square circle-lg" />
                   </div>
               <% end %>
-              <div class="w-full border-2 solid border-slate-300">
+              <div class="w-full border-2 solid border-slate-400">
                 <div class={[
                   "w-full aspect-square grid grid-cols-3",
                   board_is_disabled?(@game.state, board_num) && "opacity-30",
@@ -75,7 +92,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
                           <%= if @game.state["turn"] == "#{@player_id}" and is_nil(@game.state["winner"]) do %>
                             <button
                               class={[
-                                "border solid border-slate-300 aspect-square flex item-center cursor-pointer",
+                                "border solid border-slate-400 aspect-square flex item-center cursor-pointer",
                                 not board_is_disabled?(@game.state, board_num) && "hover:bg-gray-100"
                               ]}
                               disabled={board_is_disabled?(@game.state, board_num)}
@@ -86,7 +103,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
                               phx-value-board_id={board_num}
                             />
                           <% else %>
-                            <div class="border solid border-slate-300 aspect-square flex item-center" />
+                            <div class="border solid border-slate-400 aspect-square flex item-center" />
                           <% end %>
                         <% "x" -> %>
                           <div class="border solid border-slate-300 aspect-square flex item-center">
@@ -116,7 +133,18 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
 
   @impl Phoenix.LiveComponent
   def update(assigns, socket) do
-    {:ok, assign(socket, assigns)}
+    timer_data = get_timer_data(assigns.game.state)
+
+    tick_timer =
+      if is_nil(assigns.game.state["winner"]) do
+        schedule_tick(assigns, Map.get(socket.assigns, :tick_timer))
+      end
+
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> assign(timer_data)
+     |> assign(tick_timer: tick_timer)}
   end
 
   @impl Phoenix.LiveComponent
@@ -135,6 +163,52 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
     )
 
     {:noreply, socket}
+  end
+
+  defp schedule_tick(assigns, timer) do
+    if timer do
+      Process.cancel_timer(timer)
+    end
+
+    send_update_after(
+      self(),
+      __MODULE__,
+      assigns,
+      1000
+    )
+  end
+
+  defp get_timer_data(state) do
+    timer = state["timer"]
+    turn = state["turn"]
+    symbol = state["players"][turn]
+
+    now = Time.utc_now()
+    current = Time.from_iso8601!(timer[symbol]["current"])
+
+    diff =
+      if is_nil(state["winner"]) do
+        Time.diff(now, current)
+      else
+        0
+      end
+
+    cumulative_assigns =
+      if symbol == "x" do
+        %{
+          x_cumulative: seconds_to_string(timer["x"]["cumulative"] + diff),
+          o_cumulative: seconds_to_string(timer["o"]["cumulative"])
+        }
+      else
+        %{
+          x_cumulative: seconds_to_string(timer["x"]["cumulative"]),
+          o_cumulative: seconds_to_string(timer["o"]["cumulative"] + diff)
+        }
+      end
+
+    cumulative_assigns
+    |> Map.merge(%{current: seconds_to_string(diff)})
+    |> Map.merge(%{id: :super_tic_tac_toe})
   end
 
   defp notify_parent(msg), do: send(self(), msg)
@@ -161,5 +235,34 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
 
   def get_cell(boards, board_id, row, column) do
     boards |> Map.get(board_id) |> Enum.at(row) |> Enum.at(column)
+  end
+
+  defp find_player_name(players, player_id) when is_binary(player_id) do
+    {integer_player_id, _remainder} = Integer.parse(player_id)
+
+    case Enum.find(players, fn player -> player.id == integer_player_id end) do
+      nil -> ""
+      %Playground.DB.Player{name: name} -> name
+    end
+  end
+
+  defp find_player_name(players, integer_player_id) do
+    case Enum.find(players, fn player -> player.id == integer_player_id end) do
+      nil -> ""
+      %Playground.DB.Player{name: name} -> name
+    end
+  end
+
+  defp seconds_to_string(seconds) do
+    minute = round(seconds / 60)
+    sec = rem(seconds, 60)
+
+    "#{pad_num(minute)}:#{pad_num(sec)}"
+  end
+
+  defp pad_num(num) do
+    num
+    |> Integer.to_string()
+    |> String.pad_leading(2, "0")
   end
 end

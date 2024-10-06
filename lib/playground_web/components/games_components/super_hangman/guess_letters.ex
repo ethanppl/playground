@@ -453,9 +453,6 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
           <% end %>
         </div>
       </.modal>
-      <%!-- <pre>
-        <%= inspect(@game.state, pretty: true) %>
-      </pre> --%>
     </div>
     """
   end

@@ -72,7 +72,17 @@ defmodule Playground.Games.SuperTicTacToe do
       "boards" => boards,
       "next_board" => "9",
       "turn" => "#{Enum.at(players, 0)}",
-      "winner" => nil
+      "winner" => nil,
+      "timer" => %{
+        "x" => %{
+          "cumulative" => 0,
+          "current" => Time.to_iso8601(Time.utc_now())
+        },
+        "o" => %{
+          "cumulative" => 0,
+          "current" => nil
+        }
+      }
     }
 
     Game.create_changeset(%Game{}, %{room_id: room.id, type: @game_id, state: state})
@@ -90,7 +100,6 @@ defmodule Playground.Games.SuperTicTacToe do
       }) do
     state = game.state
     player_symbol = state["players"]["#{player_id}"]
-    another_player = state["players"] |> Map.keys() |> Enum.find(&(&1 != "#{player_id}"))
 
     cond do
       # Not the player turn
@@ -110,7 +119,7 @@ defmodule Playground.Games.SuperTicTacToe do
 
         state
         |> Map.put("boards", new_boards)
-        |> Map.put("turn", another_player)
+        |> switch_turn()
         |> maybe_set_winner(move.board_id)
         |> set_next_board(move.row, move.col)
         |> maybe_send_notification(support)
@@ -213,6 +222,41 @@ defmodule Playground.Games.SuperTicTacToe do
     col = rem(board_num, 3)
 
     {row, col}
+  end
+
+  defp switch_turn(state) do
+    now = Time.utc_now()
+
+    current_player_id = state["turn"]
+    current_player_symbol = state["players"][current_player_id]
+    current_player_timer = state["timer"][current_player_symbol]
+
+    current = Time.from_iso8601!(current_player_timer["current"])
+    diff = Time.diff(now, current)
+    cumulative = current_player_timer["cumulative"] + diff
+
+    updated_current_player_timer = %{
+      "cumulative" => cumulative,
+      "current" => nil
+    }
+
+    another_player_id =
+      state["players"] |> Map.keys() |> Enum.find(&(&1 != current_player_id))
+
+    another_player_symbol = state["players"][another_player_id]
+    another_player_timer = state["timer"][another_player_symbol]
+
+    updated_another_player_timer =
+      Map.put(another_player_timer, "current", Time.to_iso8601(Time.utc_now()))
+
+    updated_timer =
+      state["timer"]
+      |> Map.put(current_player_symbol, updated_current_player_timer)
+      |> Map.put(another_player_symbol, updated_another_player_timer)
+
+    state
+    |> Map.put("timer", updated_timer)
+    |> Map.put("turn", another_player_id)
   end
 
   defp maybe_send_notification(state, %{
