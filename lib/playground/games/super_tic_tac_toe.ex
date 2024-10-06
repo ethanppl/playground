@@ -195,7 +195,7 @@ defmodule Playground.Games.SuperTicTacToe do
 
   defp maybe_draw(state) do
     all_board_is_full_or_won =
-      Enum.all?(0..9, fn board_num ->
+      Enum.all?(0..8, fn board_num ->
         board_is_full?(state["boards"]["#{board_num}"]) or
           state["boards"]["9"] |> Enum.at(floor(board_num / 3)) |> Enum.at(rem(board_num, 3)) !=
             nil

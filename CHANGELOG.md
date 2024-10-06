@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Super tic tac toe: timer of current move + cumulative of each player
 
+### Changed
+
+- Super tic tac toe: fix is draw logic
+- Make the restart/new game buttons smaller
+
 ## [0.2.2] - 2024-09-13
 
 ### Changed

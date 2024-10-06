@@ -25,11 +25,11 @@ defmodule PlaygroundWeb.GamesComponents.TicTacToeComponent do
                 </p>
               <% end %>
             <% end %>
-            <div class="my-4">
-              <.button phx-click="back" size={:responsive} variant={:secondary}>
+            <div class="py-4 flex flex-row justify-center gap-2">
+              <.button phx-click="back" size={:sm} variant={:secondary}>
                 Pick another game
               </.button>
-              <.button phx-click="again" size={:responsive}>
+              <.button phx-click="again" size={:sm}>
                 Play again
               </.button>
             </div>

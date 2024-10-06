@@ -144,10 +144,10 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
               Good game!
             </.header>
             <div class="flex flex-row gap-4 items-center">
-              <.button phx-click="back" size={:responsive} variant={:secondary}>
+              <.button phx-click="back" size={:sm} variant={:secondary}>
                 Pick another game
               </.button>
-              <.button phx-click="again" size={:responsive}>
+              <.button phx-click="again" size={:sm}>
                 Play again
               </.button>
             </div>

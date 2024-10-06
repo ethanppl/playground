@@ -9,7 +9,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
   def render(assigns) do
     ~H"""
     <div class="w-full">
-      <div class="text-xl md:text-2xl font-bold m-2 text-center">
+      <div class="text-xl md:text-2xl font-bold mb-2 text-center">
         <%= cond do %>
           <% not is_nil(@game.state["winner"]) -> %>
             <%= if @game.state["winner"] == "draw" do %>
@@ -25,11 +25,11 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
                 </p>
               <% end %>
             <% end %>
-            <div class="my-4">
-              <.button phx-click="back" size={:responsive} variant={:secondary}>
+            <div class="py-4 flex flex-row justify-center gap-2">
+              <.button phx-click="back" size={:sm} variant={:secondary}>
                 Pick another game
               </.button>
-              <.button phx-click="again" size={:responsive}>
+              <.button phx-click="again" size={:sm}>
                 Play again
               </.button>
             </div>
