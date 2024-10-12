@@ -46,7 +46,7 @@ defmodule Playground.MixProject do
        app: false,
        compile: false,
        depth: 1},
-      {:jason, "~> 1.2"},
+      {:jason, "~> 1.4"},
       {:phoenix, "~> 1.7.11"},
       {:phoenix_ecto, "~> 4.4"},
       {:phoenix_html, "~> 4.0"},
@@ -60,6 +60,10 @@ defmodule Playground.MixProject do
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:typed_ecto_schema, "~> 0.4.1", runtime: false},
+
+      # monitoring
+      {:sentry, "~> 10.0"},
+      {:hackney, "~> 1.19"},
 
       # Test
       {:ex_machina, "~> 2.7.0", only: [:dev, :test]},
