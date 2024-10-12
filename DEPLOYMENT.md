@@ -182,6 +182,7 @@ Notes for deploying this in a self-hosted environment.
    - Change the password and the IP address for the DB
    - Change the secret to the secret generated in the previous step
    - If the domain name is different, change the `PHX_HOST` env
+   - The `SENTRY_DSN` env is optional, if not provided then sentry won't work
 
    ```
    docker run --name playground \
@@ -190,6 +191,8 @@ Notes for deploying this in a self-hosted environment.
    --env=MIGRATION_DATABASE_URL="postgresql://playground_migrations:password@172.18.0.2:5432/playground_engine" \
    --env=SECRET_KEY_BASE="secret" \
    --env=PHX_HOST="playground.ethanppl.com" \
+   --env=ENV="production" \
+   --env=SENTRY_DSN="https://sentry.ethanppl.com" \
    -p 4000:4000 \
    -d playground
    ```
