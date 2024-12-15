@@ -232,6 +232,12 @@ Notes for deploying this in a self-hosted environment.
 
          location / {
             proxy_pass http://localhost:4000;
+            proxy_ssl_server_name on;
+
+            # For web socket connections
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
          }
       }
       ```
@@ -278,6 +284,12 @@ Notes for deploying this in a self-hosted environment.
 
       location / {
          proxy_pass http://localhost:4000;
+         proxy_ssl_server_name on;
+
+         # For web socket connections
+         proxy_http_version 1.1;
+         proxy_set_header Upgrade $http_upgrade;
+         proxy_set_header Connection "Upgrade";
 
          add_header Alt-Svc 'h3=":443"; ma=86400';
       }
