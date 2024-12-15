@@ -10,10 +10,13 @@
     <div class="border border-1 rounded-lg">
       <button class="phx-submit-loading:opacity-75 rounded-lg px-3">
         <.link patch={~p"/games/#{game.game_id}"}>
-          <img
-            src={"/images/games/#{game.game_id}.png"}
-            class="w-11/12 aspect-square mx-auto p-2"
-          />
+          <picture>
+            <source type="image/webp" srcset={"/images/games/#{game.game_id}.webp"} />
+            <img
+              src={"/images/games/#{game.game_id}.png"}
+              class="w-11/12 aspect-square mx-auto p-2"
+            />
+          </picture>
           <div class="flex flex-row justify-between py-2 px-2">
             <span class="font-bold"><%= game.name %></span>
             <div class="flex flex-row gap-1 items-center">

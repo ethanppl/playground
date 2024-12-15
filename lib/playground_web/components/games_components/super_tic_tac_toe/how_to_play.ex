@@ -27,7 +27,10 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent.HowToPlay do
       </p>
 
       <div class="p-2">
-        <img src="/images/games/super-tic-tac-toe/rule.png" class="w-11/12 mx-auto" />
+        <picture>
+          <source type="image/webp" srcset="/images/games/super-tic-tac-toe/rule.webp" />
+          <img src="/images/games/super-tic-tac-toe/rule.png" class="w-11/12 mx-auto" />
+        </picture>
         <div class="w-full text-center text-sm text-zinc-400">
           Because opponent played in the top right corner, you must play in the top right small grid
         </div>

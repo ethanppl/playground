@@ -16,7 +16,10 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.HowToPlay do
       </p>
 
       <div class="p-2">
-        <img src="/images/games/super-hangman/hangman.png" class="w-11/12 mx-auto p-2" />
+        <picture>
+          <source type="image/webp" srcset="/images/games/super-hangman/hangman.webp" />
+          <img src="/images/games/super-hangman/hangman.png" class="w-11/12 mx-auto p-2" />
+        </picture>
         <div class="w-full text-center text-sm text-zinc-400">
           'E', 'O', 'S' and 'T' are incorrect
         </div>
@@ -31,7 +34,10 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.HowToPlay do
       </p>
 
       <div class="p-2">
-        <img src="/images/games/super-hangman.png" class="w-11/12 mx-auto" />
+        <picture>
+          <source type="image/webp" srcset="/images/games/super-hangman.webp" />
+          <img src="/images/games/super-hangman.png" class="w-11/12 mx-auto" />
+        </picture>
         <div class="w-full text-center text-sm text-zinc-400">
           The viewer is Kevin
         </div>

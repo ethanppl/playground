@@ -17,7 +17,10 @@ defmodule PlaygroundWeb.GamesComponents.TicTacToeComponent.HowToPlay do
         >tic-tac-toe</a>!
       </p>
       <div class="p-2">
-        <img src="/images/games/tic-tac-toe.png" class="w-11/12 mx-auto" />
+        <picture>
+          <source type="image/webp" srcset="/images/games/tic-tac-toe.webp" />
+          <img src="/images/games/tic-tac-toe.png" class="w-11/12 mx-auto" />
+        </picture>
       </div>
     </div>
     """
