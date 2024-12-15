@@ -152,10 +152,11 @@
       </.button>
     </div>
     <div :if={@room.active_game == nil} class="mt-8 flex flex-col gap-4">
-      <%!-- Fix later, should quit room properly --%>
-      <.button phx-click={JS.navigate("/")} size={:responsive}>
-        Quit room
-      </.button>
+      <.form action={~p"/quit_room"} method="post" for={%{}} class="w-full">
+        <.button size={:responsive} type="submit" class="w-full">
+          Quit room
+        </.button>
+      </.form>
     </div>
   </div>
 </.modal>

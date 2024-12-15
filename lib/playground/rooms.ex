@@ -181,4 +181,92 @@ defmodule Playground.Rooms do
       room -> {:ok, room}
     end
   end
+
+  @doc """
+  Remove a player from a room by code.
+
+  ## Examples
+
+      iex> remove_player(%{code: "ABCD", player_id: 34})
+      {:ok, %Playground.DB.Room{}}
+
+  """
+  def remove_player(%{code: code, player_id: player_id})
+      when is_binary(code) and is_number(player_id) do
+    with {:ok, room} <- validate_room_exist(code),
+         :ok <- validate_player_is_in_room(room, player_id),
+         {:ok, _multi} <- remove_player_multi(room, player_id),
+         {:ok, updated_room_details} <- get_room_details(code) do
+      {:ok, updated_room_details}
+    else
+      # The room is deleted because the host is removed and there is no more players
+      {:error, :room_not_found} ->
+        {:ok, nil}
+
+      error ->
+        error
+    end
+  end
+
+  defp validate_room_exist(code) do
+    case get_room_details(code) do
+      {:error, :room_not_found} ->
+        {:error, "Room #{code} does not exist"}
+
+      res ->
+        res
+    end
+  end
+
+  defp validate_player_is_in_room(%Room{players: players, code: code}, player_id) do
+    do_find_player =
+      Enum.find(players, fn player ->
+        player.id == player_id
+      end)
+
+    case do_find_player do
+      nil ->
+        {:error, "Player #{player_id} is not part of room #{code}"}
+
+      %Player{} ->
+        :ok
+    end
+  end
+
+  # Reassign host when the given player id is the host
+  # Then delete the user
+  defp remove_player_multi(%Room{} = room, player_id) do
+    Multi.new()
+    |> reassign_host(room, player_id)
+    |> delete_player(player_id)
+    |> Repo.transaction()
+  end
+
+  defp reassign_host(
+         %Multi{} = multi,
+         %Room{host: %Player{id: host_id}} = room,
+         host_id
+       ) do
+    case find_new_host(room) do
+      nil ->
+        multi
+
+      %Player{id: new_host_id} ->
+        Multi.update(multi, :update_host, Room.set_host_changeset(room, %{host_id: new_host_id}))
+    end
+  end
+
+  defp reassign_host(%Multi{} = multi, _room, _player_id) do
+    multi
+  end
+
+  defp find_new_host(%Room{host: %Player{id: host_id}, players: players}) do
+    Enum.find(players, fn player ->
+      player.id != host_id
+    end)
+  end
+
+  defp delete_player(%Multi{} = multi, player_id) do
+    Multi.delete(multi, :delete_player, %Player{id: player_id})
+  end
 end

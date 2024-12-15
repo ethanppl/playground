@@ -28,4 +28,22 @@ defmodule PlaygroundWeb.RoomController do
         json(conn, %{message: "failed to create room", error: error})
     end
   end
+
+  def quit(conn, _params) do
+    room_code = get_session(conn, :room_code)
+    player_id = get_session(conn, :user_id)
+
+    if is_binary(room_code) and is_number(player_id) do
+      Playground.RoomProcess.remove_player(%{
+        code: room_code,
+        player_id: player_id
+      })
+    end
+
+    conn
+    |> Plug.Conn.delete_session(:user_name)
+    |> Plug.Conn.delete_session(:user_id)
+    |> Plug.Conn.delete_session(:room_code)
+    |> redirect(to: ~p"/")
+  end
 end

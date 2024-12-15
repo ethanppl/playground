@@ -29,6 +29,7 @@ defmodule PlaygroundWeb.Router do
 
     post "/new_room", RoomController, :new
     post "/join_room", RoomController, :join
+    post "/quit_room", RoomController, :quit
   end
 
   # Other scopes may use custom stacks.

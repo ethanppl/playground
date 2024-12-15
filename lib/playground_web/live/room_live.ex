@@ -3,7 +3,7 @@ defmodule PlaygroundWeb.RoomLive do
 
   @impl Phoenix.LiveView
   def mount(_params, session, socket) do
-    if connected?(socket) do
+    if connected?(socket) and is_binary(session["room_code"]) do
       Phoenix.PubSub.subscribe(Playground.PubSub, session["room_code"])
     end
 

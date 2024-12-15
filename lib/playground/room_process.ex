@@ -28,6 +28,19 @@ defmodule Playground.RoomProcess do
   end
 
   @doc """
+  Remove the given player from the room by room code.
+  """
+  def remove_player(%{code: room_code, player_id: player_id}) do
+    case whereis(room_code) do
+      nil ->
+        {:error, :room_not_found}
+
+      _pid ->
+        GenServer.call(via(room_code), {:remove_player, player_id})
+    end
+  end
+
+  @doc """
   Get the room details by the given room code.
   """
   def get_room_details(room_code) do
@@ -100,6 +113,22 @@ defmodule Playground.RoomProcess do
       res = Rooms.join_room(%{code: room.code, player_name: player_name})
 
     {:reply, res, updated_room, {:continue, :broadcast}}
+  end
+
+  @impl GenServer
+  def handle_call({:remove_player, player_id}, _from, room) do
+    res = Rooms.remove_player(%{code: room.code, player_id: player_id})
+
+    case res do
+      {:ok, nil} ->
+        {:stop, {:shutdown, "empty room"}, :ok, room}
+
+      {:ok, updated_room} ->
+        {:reply, res, updated_room, {:continue, :broadcast}}
+
+      error ->
+        {:reply, error, room}
+    end
   end
 
   @impl GenServer
