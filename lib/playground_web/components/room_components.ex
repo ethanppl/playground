@@ -5,6 +5,7 @@ defmodule PlaygroundWeb.RoomComponents do
 
   use Phoenix.Component
 
+  alias Phoenix.LiveView.JS
   alias PlaygroundWeb.CoreComponents
 
   def players_component(assigns) do
@@ -25,6 +26,18 @@ defmodule PlaygroundWeb.RoomComponents do
         >
           HOST
         </span>
+        <div
+          :if={
+            @room.active_game == nil and @viewer_id == @room.host_id and player.id != @room.host_id
+          }
+          class="inline-flex items-center rounded-md bg-red-100 mx-2 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10 cursor-pointer"
+          phx-click={
+            JS.transition({"ease-out duration-500", "opacity-0", "opacity-100"}) |> JS.push("remove")
+          }
+          phx-value-remove-player-id={player.id}
+        >
+          Remove
+        </div>
       </div>
     </div>
     """

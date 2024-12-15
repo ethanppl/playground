@@ -25,7 +25,12 @@ defmodule PlaygroundWeb.RoomLive do
       ) do
     case Playground.RoomProcess.get_room_details(code) do
       {:error, :room_not_found} ->
-        {:noreply, push_navigate(socket, to: "/", replace: true)}
+        {:noreply,
+         push_navigate(
+           socket,
+           to: "/?error=Sorry!+Cannot+find+room+#{code}",
+           replace: true
+         )}
 
       {:ok, room_details} ->
         is_host = room_details.host_id === socket.assigns.player_id
@@ -34,30 +39,62 @@ defmodule PlaygroundWeb.RoomLive do
 
         join_room_link = String.replace(url, "/rooms/#{code}", "/join/#{code}")
 
-        {:noreply,
-         socket
-         |> assign(:room_code, code)
-         |> assign(:room, room_details)
-         |> assign(:is_host, is_host)
-         |> assign(:games, games)
-         |> assign(:join_room_link, join_room_link)
-         |> apply_action(socket.assigns.live_action, params)}
+        new_socket =
+          socket
+          |> assign(:room_code, code)
+          |> assign(:room, room_details)
+          |> assign(:is_host, is_host)
+          |> assign(:games, games)
+          |> assign(:join_room_link, join_room_link)
+          |> apply_action(socket.assigns.live_action, params)
+
+        maybe_redirect_viewer(room_details, new_socket)
     end
   end
 
   @impl Phoenix.LiveView
   def handle_params(_params, _url, socket) do
-    {:noreply, push_navigate(socket, to: "/", replace: true)}
+    # If the viewer is not part of the room, redirect back to the home page
+    {:noreply,
+     push_navigate(
+       socket,
+       to: "/?error=Sorry!+You+are+not+part+of+the+room",
+       replace: true
+     )}
+  end
+
+  # If the viewer is not part of the room, redirect back to the home page
+  defp maybe_redirect_viewer(room, socket, is_room_just_updated \\ false) do
+    player_is_in_room =
+      room
+      |> Map.get(:players)
+      |> Enum.find(fn player ->
+        player.id == socket.assigns.player_id
+      end)
+      |> is_struct(Playground.DB.Player)
+
+    cond do
+      player_is_in_room == true ->
+        {:noreply, socket}
+
+      is_room_just_updated ->
+        {:noreply, push_navigate(socket, to: ~p"/?error=Sorry!+You+are+removed+by+the+host")}
+
+      true ->
+        {:noreply, push_navigate(socket, to: ~p"/?error=Sorry!+You+are+not+part+of+the+room")}
+    end
   end
 
   @impl Phoenix.LiveView
   def handle_info({:room_updated, room}, socket) do
     games = get_games(room)
 
-    {:noreply,
-     socket
-     |> assign(:room, room)
-     |> assign(:games, games)}
+    new_socket =
+      socket
+      |> assign(:room, room)
+      |> assign(:games, games)
+
+    maybe_redirect_viewer(room, new_socket, true)
   end
 
   def handle_info(
@@ -124,7 +161,12 @@ defmodule PlaygroundWeb.RoomLive do
   def handle_event("pick_game", %{"game_id" => game_id}, socket) do
     case Playground.RoomProcess.start_game(%{code: socket.assigns.room_code, game_id: game_id}) do
       {:error, :room_not_found} ->
-        {:noreply, push_navigate(socket, to: "/", replace: true)}
+        {:noreply,
+         push_navigate(
+           socket,
+           to: "/?error=Sorry!+Cannot+find+room+#{socket.assigns.room_code}",
+           replace: true
+         )}
 
       {:ok, _} ->
         {:noreply, socket}
@@ -195,6 +237,19 @@ defmodule PlaygroundWeb.RoomLive do
      socket
      |> assign(is_info_modal_open: false)
      |> assign(info_modal_show_how_to_play: nil)}
+  end
+
+  def handle_event(
+        "remove",
+        params,
+        socket
+      ) do
+    Playground.RoomProcess.remove_player(%{
+      code: socket.assigns.room_code,
+      player_id: String.to_integer(params["remove-player-id"])
+    })
+
+    {:noreply, socket}
   end
 
   def players_count(room) do

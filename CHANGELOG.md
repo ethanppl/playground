@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Support quit room and remove the user from its room
+- Support host removing player from its room
+
 ### Changed
 
 - Images are in webp format by default, with png as fallback
-- Support quit room and remove the user from its room
 
 ## [0.2.4] - 2024-10-12
 
