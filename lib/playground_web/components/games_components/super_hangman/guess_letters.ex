@@ -540,6 +540,12 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
       |> GuessLettersChangeset.changeset(guess_letter_params)
       |> Ecto.Changeset.apply_action(:insert)
 
+    changeset =
+      GuessLettersChangeset.changeset(
+        %GuessLettersChangeset{},
+        %{"letter" => ""}
+      )
+
     case validation do
       {:ok, _changeset} ->
         notify_parent(
@@ -547,7 +553,8 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
            %{"type" => "letter", "letter" => String.upcase(guess_letter_params["letter"])}}
         )
 
-        {:noreply, socket}
+        # Reset the form
+        {:noreply, assign_letter_form(socket, Map.put(changeset, :action, :validate))}
 
       {:error, _changeset} ->
         {:noreply, socket}
