@@ -1,10 +1,6 @@
 on: push
 name: Checks
 
-# Sets the ENV `MIX_ENV` to `test` for running tests
-env:
-  MIX_ENV: test
-
 permissions:
   contents: read
 
@@ -106,6 +102,9 @@ jobs:
 
     runs-on: ubuntu-latest
     name: Unit Tests
+    env:
+      MIX_ENV: test
+
     steps:
       # Step: Setup Elixir + Erlang image as the base.
       - name: Set up Elixir
