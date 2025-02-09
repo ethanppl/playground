@@ -254,7 +254,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
   end
 
   defp seconds_to_string(seconds) do
-    minute = round(seconds / 60)
+    minute = trunc(seconds / 60)
     sec = rem(seconds, 60)
 
     "#{pad_num(minute)}:#{pad_num(sec)}"

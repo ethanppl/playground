@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
 - Set endpoint config URL to `playground.ethanppl.com`
 - Handle error when player concurrently start/end games
+- Fix Super tic tac toe: timer round off is incorrect
 
 ## [0.2.5] - 2024-12-15
 
