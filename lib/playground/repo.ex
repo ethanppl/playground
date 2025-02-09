@@ -1,4 +1,8 @@
 defmodule Playground.Repo do
+  @moduledoc """
+  The repo for the playground
+  """
+
   use Ecto.Repo,
     otp_app: :playground,
     adapter: Ecto.Adapters.Postgres

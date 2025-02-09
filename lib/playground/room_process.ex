@@ -7,6 +7,10 @@ defmodule Playground.RoomProcess do
 
   alias Playground.{Games, Rooms}
 
+  @doc """
+  Start a room process with the given room
+  """
+  @spec start_link(Playground.DB.Room.t()) :: {:ok, pid} | {:error, term}
   def start_link(room) do
     case GenServer.start_link(__MODULE__, room, name: via(room.code)) do
       {:ok, pid} -> {:ok, pid}
@@ -17,6 +21,9 @@ defmodule Playground.RoomProcess do
   @doc """
   Join the room by the given room code, with the given player name.
   """
+  @spec join_room(%{code: String.t(), player_name: String.t()}) ::
+          {:ok, %{room: Playground.DB.Room.t(), player: Playground.DB.Player.t()}}
+          | {:error, term}
   def join_room(%{code: room_code, player_name: player_name}) do
     case whereis(room_code) do
       nil ->
@@ -30,6 +37,8 @@ defmodule Playground.RoomProcess do
   @doc """
   Remove the given player from the room by room code.
   """
+  @spec remove_player(%{code: String.t(), player_id: integer}) ::
+          {:ok, Playground.DB.Room.t()} | {:error, term}
   def remove_player(%{code: room_code, player_id: player_id}) do
     case whereis(room_code) do
       nil ->
@@ -43,6 +52,7 @@ defmodule Playground.RoomProcess do
   @doc """
   Get the room details by the given room code.
   """
+  @spec get_room_details(String.t()) :: {:ok, Playground.DB.Room.t()} | {:error, term}
   def get_room_details(room_code) do
     case whereis(room_code) do
       nil ->
@@ -56,6 +66,8 @@ defmodule Playground.RoomProcess do
   @doc """
   Start a game of the given game_id
   """
+  @spec start_game(%{code: String.t(), game_id: String.t()}) ::
+          {:ok, Playground.DB.Room.t()} | {:error, term}
   def start_game(%{code: room_code, game_id: game_id}) do
     case whereis(room_code) do
       nil ->
@@ -69,6 +81,7 @@ defmodule Playground.RoomProcess do
   @doc """
   End the current game in the room
   """
+  @spec end_game(String.t()) :: {:ok, Playground.DB.Room.t()} | {:error, term}
   def end_game(room_code) do
     case whereis(room_code) do
       nil ->
@@ -82,6 +95,8 @@ defmodule Playground.RoomProcess do
   @doc """
   A move in the game
   """
+  @spec game_move(%{code: String.t(), player_id: integer, move: map()}) ::
+          {:ok, Playground.DB.Room.t()} | {:error, term}
   def game_move(%{code: room_code, player_id: player_id, move: move}) do
     case whereis(room_code) do
       nil ->

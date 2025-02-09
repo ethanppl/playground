@@ -69,7 +69,9 @@ defmodule Playground.MixProject do
       {:ex_machina, "~> 2.7.0", only: [:dev, :test]},
 
       # Dev
-      {:credo, "~> 1.7.5", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7.5", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:doctor, "~> 0.22.0", only: :dev}
     ]
   end
 
@@ -92,7 +94,13 @@ defmodule Playground.MixProject do
         "esbuild playground --minify",
         "phx.digest"
       ],
-      seeds: ["run priv/repo/seeds.exs"]
+      seeds: ["run priv/repo/seeds.exs"],
+      ensure_code_consistency: [
+        "credo --strict",
+        "dialyzer",
+        "doctor",
+        "format --check-formatted"
+      ]
     ]
   end
 end

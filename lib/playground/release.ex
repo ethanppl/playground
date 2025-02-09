@@ -5,6 +5,9 @@ defmodule Playground.Release do
   """
   @app :playground
 
+  @doc """
+  Migrate the database
+  """
   def migrate do
     load_app()
 
@@ -13,6 +16,9 @@ defmodule Playground.Release do
     end
   end
 
+  @doc """
+  Rollback the database to a specific version
+  """
   def rollback(repo, version) do
     load_app()
     {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))

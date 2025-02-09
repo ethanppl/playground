@@ -21,6 +21,7 @@ defmodule Playground.DB.Room do
   Change set to create a room.
   Validate the code is 4 characters long.
   """
+  @spec create_changeset(Playground.DB.Room.t(), map) :: Ecto.Changeset.t()
   def create_changeset(room, attrs) do
     room
     |> cast(attrs, [:code, :status])
@@ -31,6 +32,7 @@ defmodule Playground.DB.Room do
   @doc """
   Set the host of the room
   """
+  @spec set_host_changeset(Playground.DB.Room.t(), map) :: Ecto.Changeset.t()
   def set_host_changeset(room, attrs) do
     room
     |> cast(attrs, [:host_id])
@@ -41,6 +43,7 @@ defmodule Playground.DB.Room do
   @doc """
   Update the status of the room
   """
+  @spec set_status_changeset(Playground.DB.Room.t(), map) :: Ecto.Changeset.t()
   def set_status_changeset(room, attrs) do
     room
     |> cast(attrs, [:status])
@@ -50,6 +53,7 @@ defmodule Playground.DB.Room do
   @doc """
   Returns a query on Playground.DB.Room, with :room as a named binding.
   """
+  @spec base_query() :: Ecto.Query.t()
   def base_query do
     Query.from(r in __MODULE__, as: :room)
   end
@@ -57,6 +61,7 @@ defmodule Playground.DB.Room do
   @doc """
   Returns a query on Playground.DB.Room, where the room has the given code.
   """
+  @spec where_code(Ecto.Query.t(), String.t()) :: Ecto.Query.t()
   def where_code(query, code) do
     Query.where(query, [room: r], r.code == ^code)
   end
@@ -64,6 +69,7 @@ defmodule Playground.DB.Room do
   @doc """
   Returns a query on Playground.DB.Room, where the room is active.
   """
+  @spec where_is_active(Ecto.Query.t()) :: Ecto.Query.t()
   def where_is_active(query) do
     Query.where(query, [room: r], r.status in [:open, :playing])
   end

@@ -17,14 +17,16 @@ defmodule Playground.DB.Player do
     timestamps(type: :utc_datetime)
   end
 
-  @doc false
+  @doc "Creates a new player"
+  @spec changeset(Playground.DB.Player.t(), map) :: Ecto.Changeset.t()
   def changeset(player, attrs) do
     player
     |> cast(attrs, [:name, :room_id])
     |> validate_required([:name, :room_id])
   end
 
-  @doc false
+  @doc "Get a player by the given id"
+  @spec get_player_by_id(integer) :: Playground.DB.Player.t() | nil
   def get_player_by_id(id) do
     Repo.one(Query.from(p in __MODULE__, where: p.id == ^id))
   end

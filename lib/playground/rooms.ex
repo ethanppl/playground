@@ -23,6 +23,7 @@ defmodule Playground.Rooms do
       {:ok, %Playground.DB.Room{}}
 
   """
+  @spec create_room(%{host_name: String.t()}) :: {:ok, Playground.DB.Room.t()} | {:error, term}
   def create_room(%{host_name: host_name}) do
     with {:ok, code} <- generate_code(),
          {:ok, %{update_room_host: room}} <-
@@ -52,6 +53,7 @@ defmodule Playground.Rooms do
       iex> generate_code()
       {:ok, "ABCD"}
   """
+  @spec generate_code() :: {:ok, String.t()}
   def generate_code do
     generate_code(0)
   end
@@ -92,6 +94,8 @@ defmodule Playground.Rooms do
       {:ok, %{room: %Playground.DB.Room{}, player: %Playground.DB.Player{}}
 
   """
+  @spec join_room(%{code: String.t(), player_name: String.t()}) ::
+          {:ok, %{room: Playground.DB.Room.t(), player: Playground.DB.Player.t()}}
   def join_room(%{code: code, player_name: player_name}) do
     with {:ok, room} <- get_room_details(code),
          {:ok, player} <- create_player(room, String.upcase(player_name)),
@@ -114,6 +118,8 @@ defmodule Playground.Rooms do
       iex> start_game(%{code: "ABCD", game_id: "game_id"})
       {:ok, %Playground.DB.Room{}}
   """
+  @spec start_game(%{code: String.t(), game_id: String.t()}) ::
+          {:ok, Playground.DB.Room.t()} | {:error, term}
   def start_game(%{code: code, game_id: game_id}) do
     with {:ok, room} <- get_room_details(code),
          false <- has_active_game?(room),
@@ -155,6 +161,7 @@ defmodule Playground.Rooms do
       iex> end_game("ABCD")
       {:ok, %Playground.DB.Room{}}
   """
+  @spec end_game(String.t()) :: {:ok, Playground.DB.Room.t()} | {:error, term}
   def end_game(code) do
     with {:ok, room} <- get_room_details(code),
          true <- has_active_game?(room),
@@ -172,10 +179,11 @@ defmodule Playground.Rooms do
 
   ## Examples
 
-      iex> get_room_details(%{code: "ABCD"})
+      iex> get_room_details("ABCD")
       {:ok, %Playground.DB.Room{}}
 
   """
+  @spec get_room_details(String.t()) :: {:ok, Playground.DB.Room.t()} | {:error, term}
   def get_room_details(room_code) do
     do_get_room =
       Room.base_query()
@@ -199,6 +207,8 @@ defmodule Playground.Rooms do
       {:ok, %Playground.DB.Room{}}
 
   """
+  @spec remove_player(%{code: String.t(), player_id: integer}) ::
+          {:ok, nil} | {:ok, Playground.DB.Room.t()} | {:error, term}
   def remove_player(%{code: code, player_id: player_id})
       when is_binary(code) and is_number(player_id) do
     with {:ok, room} <- validate_room_exist(code),

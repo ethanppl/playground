@@ -14,7 +14,8 @@ defmodule Playground.DB.Game do
     timestamps(type: :utc_datetime)
   end
 
-  @doc false
+  @doc "Creates a new game"
+  @spec create_changeset(Playground.DB.Game.t(), map) :: Ecto.Changeset.t()
   def create_changeset(game, attrs) do
     game
     |> cast(attrs, [:state, :type, :room_id])
@@ -22,7 +23,8 @@ defmodule Playground.DB.Game do
     |> validate_required([:state, :status, :type, :room_id])
   end
 
-  @doc false
+  @doc "Updates a game status and/or state"
+  @spec update(Playground.DB.Game.t(), map) :: {:ok, Playground.DB.Game.t()}
   def update(game, attr) do
     game
     |> cast(attr, [:status, :state])
