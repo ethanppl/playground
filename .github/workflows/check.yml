@@ -4,6 +4,9 @@ name: Checks
 permissions:
   contents: read
 
+env:
+  PLT_CACHE_VERSION: 1
+
 jobs:
   ensure_code_consistency:
     runs-on: ubuntu-latest
