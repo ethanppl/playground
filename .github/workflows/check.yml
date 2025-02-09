@@ -11,20 +11,14 @@ permissions:
 jobs:
   ensure_code_consistency:
     runs-on: ubuntu-latest
-    name: Test on OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
-    strategy:
-      # Specify the OTP and Elixir versions to use when building
-      # and running the workflow steps.
-      matrix:
-        otp: ["26.2.3"] # Define the OTP version [required]
-        elixir: ["1.16.2"] # Define the elixir version [required]
+    name: Ensure code consistency
     steps:
       # Step: Setup Elixir + Erlang image as the base.
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{matrix.otp}}
-          elixir-version: ${{matrix.elixir}}
+          otp-version: "26.2.3"
+          elixir-version: "1.16.2"
 
       # Step: Check out the code.
       - name: Checkout code
@@ -79,13 +73,17 @@ jobs:
       - name: Compiles without warnings
         run: mix compile --warnings-as-errors
 
-      # Step: Check that the checked in code has already been formatted.
+      # Step: Check that the code has already been formatted.
       - name: Check Formatting
         run: mix format --check-formatted
 
-      # Step: Check that the checked in code complies with the credo rules.
+      # Step: Check that the code complies with the credo rules.
       - name: Check Credo
         run: mix credo -A
+
+      # Step: Check that the documentation complies with the doctor rules.
+      - name: Check Doctor
+        run: mix doctor
 
   test:
     # Set up a Postgres DB service. By default, Phoenix applications
@@ -107,20 +105,14 @@ jobs:
           --health-retries 5
 
     runs-on: ubuntu-latest
-    name: Test on OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
-    strategy:
-      # Specify the OTP and Elixir versions to use when building
-      # and running the workflow steps.
-      matrix:
-        otp: ["26.2.3"] # Define the OTP version [required]
-        elixir: ["1.16.2"] # Define the elixir version [required]
+    name: Unit Tests
     steps:
       # Step: Setup Elixir + Erlang image as the base.
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{matrix.otp}}
-          elixir-version: ${{matrix.elixir}}
+          otp-version: "26.2.3"
+          elixir-version: "1.16.2"
 
       # Step: Check out the code.
       - name: Checkout code
