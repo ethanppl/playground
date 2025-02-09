@@ -87,12 +87,8 @@ jobs:
         uses: actions/cache/restore@v4
         id: plt_cache
         with:
-          key: |
-            plt-${{ runner.os }}-${{ env.PLT_CACHE_VERSION }}
-          restore-keys: |
-            plt-${{ runner.os }}-${{ env.PLT_CACHE_VERSION }}
-          path: |
-            priv/plts
+          key: plt-${{ runner.os }}-${{ env.PLT_CACHE_VERSION }}
+          restore-keys: plt-${{ runner.os }}-${{ env.PLT_CACHE_VERSION }}
 
       # Create PLTs if no cache was found
       - name: Create PLTs
@@ -106,10 +102,7 @@ jobs:
         if: steps.plt_cache.outputs.cache-hit != 'true'
         id: plt_cache_save
         with:
-          key: |
-            plt-${{ runner.os }}-${{ env.PLT_CACHE_VERSION }}
-          path: |
-            priv/plts
+          key: plt-${{ runner.os }}-${{ env.PLT_CACHE_VERSION }}
 
       - name: Run dialyzer
         run: mix dialyzer
