@@ -50,7 +50,7 @@ defmodule Playground.DB.Room do
   @doc """
   Returns a query on Playground.DB.Room, with :room as a named binding.
   """
-  def base_query() do
+  def base_query do
     Query.from(r in __MODULE__, as: :room)
   end
 

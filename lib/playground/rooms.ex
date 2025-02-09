@@ -52,7 +52,7 @@ defmodule Playground.Rooms do
       iex> generate_code()
       {:ok, "ABCD"}
   """
-  def generate_code() do
+  def generate_code do
     generate_code(0)
   end
 
@@ -75,7 +75,7 @@ defmodule Playground.Rooms do
     {:error, "Failed to generate a unique code after #{count} attempts"}
   end
 
-  defp do_generate_code() do
+  defp do_generate_code do
     range = ?A..?Z
 
     1..4

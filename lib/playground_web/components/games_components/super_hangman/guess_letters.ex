@@ -130,6 +130,8 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
 
   use PlaygroundWeb, :live_component
 
+  alias Playground.Games.SuperHangman
+
   alias PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLettersChangeset
   alias PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessWordsChangeset
 
@@ -487,7 +489,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
       end)
 
     is_won =
-      Playground.Games.SuperHangman.player_won?(assigns.game.state, assigns.player_id)
+      SuperHangman.player_won?(assigns.game.state, assigns.player_id)
 
     is_ended =
       Enum.count(assigns.game.state["winners"]) == Enum.count(assigns.players)

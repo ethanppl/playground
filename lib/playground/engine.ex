@@ -4,8 +4,8 @@ defmodule Playground.Engine do
   """
   use DynamicSupervisor
 
-  alias Playground.Rooms
   alias Playground.RoomProcess
+  alias Playground.Rooms
 
   def start_link(init_arg) do
     case DynamicSupervisor.start_link(__MODULE__, init_arg, name: __MODULE__) do

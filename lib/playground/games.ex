@@ -46,9 +46,7 @@ defmodule Playground.Games do
       %Ecto.Changeset{}
   """
   def create_game_changeset(%Room{} = room, game_id) do
-    module = game_module(game_id)
-
-    apply(module, :create_game_changeset, [room])
+    game_module(game_id).create_game_changeset(room)
   end
 
   @doc """
@@ -60,9 +58,7 @@ defmodule Playground.Games do
       %Playground.DB.GameType{}
   """
   def get_game_details(game_id) do
-    module = game_module(game_id)
-
-    apply(module, :get_game_details, [])
+    game_module(game_id).get_game_details()
   end
 
   @doc """
@@ -74,9 +70,7 @@ defmodule Playground.Games do
       "Tic Tac Toe"
   """
   def get_name(game_id) do
-    module = game_module(game_id)
-
-    apply(module, :get_name, [])
+    game_module(game_id).get_name()
   end
 
   @doc """
@@ -95,9 +89,7 @@ defmodule Playground.Games do
           support: _support
         } = attr
       ) do
-    module = game_module(game.type)
-
-    new_state = apply(module, :move, [attr])
+    new_state = game_module(game.type).move(attr)
 
     Game.update(game, %{state: new_state})
   end

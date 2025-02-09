@@ -14,16 +14,16 @@ defmodule Playground.Games.TicTacToe do
   alias Playground.Games
 
   @impl Playground.Games
-  def get_name(), do: @name
+  def get_name, do: @name
 
   @impl Playground.Games
-  def get_min_players(), do: @min_players
+  def get_min_players, do: @min_players
 
   @impl Playground.Games
-  def get_max_players(), do: @max_players
+  def get_max_players, do: @max_players
 
   @impl Playground.Games
-  def get_game_details() do
+  def get_game_details do
     %GameType{
       game_id: @game_id,
       name: @name,

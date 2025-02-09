@@ -103,7 +103,7 @@ jobs:
 
       # Step: Check that the checked in code complies with the credo rules.
       - name: Check Credo
-        run: mix credo
+        run: mix credo -A
 
       # Step: Setup the database for the tests.
       - name: Setup db
