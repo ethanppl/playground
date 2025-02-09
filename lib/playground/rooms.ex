@@ -116,18 +116,22 @@ defmodule Playground.Rooms do
   """
   def start_game(%{code: code, game_id: game_id}) do
     with {:ok, room} <- get_room_details(code),
-         true <- can_start_game?(room),
+         false <- has_active_game?(room),
          {:ok, _multi} <- start_game_multi(%{room: room, game_id: game_id}) do
       get_room_details(code)
+    else
+      true -> {:error, :cannot_start_game}
+      error -> error
     end
   end
 
-  defp can_start_game?(room) do
+  @spec has_active_game?(room :: Room.t()) :: boolean
+  defp has_active_game?(room) do
     room
     |> Repo.preload([:games])
     |> case do
       %Room{games: games} ->
-        not Enum.any?(games, fn game -> game.status == :active end)
+        Enum.any?(games, fn game -> game.status == :active end)
 
       _ ->
         false
@@ -153,8 +157,12 @@ defmodule Playground.Rooms do
   """
   def end_game(code) do
     with {:ok, room} <- get_room_details(code),
+         true <- has_active_game?(room),
          {:ok, _multi} <- Game.update(room.active_game, %{status: :ended}) do
       get_room_details(code)
+    else
+      false -> {:error, :cannot_end_game}
+      error -> error
     end
   end
 

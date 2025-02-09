@@ -138,17 +138,28 @@ defmodule Playground.RoomProcess do
 
   @impl GenServer
   def handle_call({:start_game, game_id}, _from, room) do
-    {:ok, updated_room} =
-      res = Rooms.start_game(%{code: room.code, game_id: game_id})
+    res = Rooms.start_game(%{code: room.code, game_id: game_id})
 
-    {:reply, res, updated_room, {:continue, :broadcast}}
+    case res do
+      {:ok, updated_room} ->
+        {:reply, res, updated_room, {:continue, :broadcast}}
+
+      {:error, :cannot_start_game} ->
+        {:reply, res, room}
+    end
   end
 
   @impl GenServer
   def handle_call(:end_game, _from, room) do
-    {:ok, updated_room} = res = Rooms.end_game(room.code)
+    res = Rooms.end_game(room.code)
 
-    {:reply, res, updated_room, {:continue, :broadcast}}
+    case res do
+      {:ok, updated_room} ->
+        {:reply, res, updated_room, {:continue, :broadcast}}
+
+      {:error, :cannot_end_game} ->
+        {:reply, res, room}
+    end
   end
 
   @impl GenServer

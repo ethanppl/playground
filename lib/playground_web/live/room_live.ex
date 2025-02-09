@@ -168,6 +168,15 @@ defmodule PlaygroundWeb.RoomLive do
            replace: true
          )}
 
+      {:error, :cannot_start_game} ->
+        {:noreply,
+         put_flash_and_schedule_clear(
+           socket,
+           :error,
+           "Cannot start game, please try again!",
+           3000
+         )}
+
       {:ok, _} ->
         {:noreply, socket}
     end

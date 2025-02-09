@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 - Set endpoint config URL to `playground.ethanppl.com`
+- Handle error when player concurrently start/end games
 
 ## [0.2.5] - 2024-12-15
 
