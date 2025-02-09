@@ -89,6 +89,7 @@ jobs:
         with:
           key: plt-${{ runner.os }}-${{ env.PLT_CACHE_VERSION }}
           restore-keys: plt-${{ runner.os }}-${{ env.PLT_CACHE_VERSION }}
+          path: _build
 
       # Create PLTs if no cache was found
       - name: Create PLTs
@@ -103,6 +104,7 @@ jobs:
         id: plt_cache_save
         with:
           key: plt-${{ runner.os }}-${{ env.PLT_CACHE_VERSION }}
+          path: _build
 
       - name: Run dialyzer
         run: mix dialyzer
