@@ -46,6 +46,7 @@ defmodule PlaygroundWeb.RoomLive do
           |> assign(:is_host, is_host)
           |> assign(:games, games)
           |> assign(:join_room_link, join_room_link)
+          |> assign(:last_updated_at, DateTime.utc_now())
           |> apply_action(socket.assigns.live_action, params)
 
         maybe_redirect_viewer(room_details, new_socket)
@@ -86,15 +87,22 @@ defmodule PlaygroundWeb.RoomLive do
   end
 
   @impl Phoenix.LiveView
-  def handle_info({:room_updated, room}, socket) do
-    games = get_games(room)
+  def handle_info({:room_updated, %{room: room, updated_at: updated_at}}, socket) do
+    is_latest_update = DateTime.before?(socket.assigns.last_updated_at, updated_at)
 
-    new_socket =
-      socket
-      |> assign(:room, room)
-      |> assign(:games, games)
+    if is_latest_update do
+      games = get_games(room)
 
-    maybe_redirect_viewer(room, new_socket, true)
+      new_socket =
+        socket
+        |> assign(:room, room)
+        |> assign(:games, games)
+        |> assign(:last_udpated_at, updated_at)
+
+      maybe_redirect_viewer(room, new_socket, true)
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_info(

@@ -117,7 +117,12 @@ defmodule Playground.RoomProcess do
 
   @impl GenServer
   def handle_continue(:broadcast, room) do
-    Phoenix.PubSub.broadcast(Playground.PubSub, room.code, {:room_updated, room})
+    data = %{
+      room: room,
+      updated_at: DateTime.utc_now()
+    }
+
+    Phoenix.PubSub.broadcast(Playground.PubSub, room.code, {:room_updated, data})
 
     {:noreply, room}
   end
