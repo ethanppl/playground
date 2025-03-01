@@ -79,10 +79,14 @@ defmodule PlaygroundWeb.RoomLive do
         {:noreply, socket}
 
       is_room_just_updated ->
-        {:noreply, push_navigate(socket, to: ~p"/?error=Sorry!+You+are+removed+by+the+host")}
+        # Using redirect perform a full page reload, and reset the layout
+        # push_navigate on the other hand mount a new LiveView but will keep the current layout
+        {:noreply, redirect(socket, to: ~p"/?error=Sorry!+You+are+removed+by+the+host")}
 
       true ->
-        {:noreply, push_navigate(socket, to: ~p"/?error=Sorry!+You+are+not+part+of+the+room")}
+        # Using redirect perform a full page reload, and reset the layout
+        # push_navigate on the other hand mount a new LiveView but will keep the current layout
+        {:noreply, redirect(socket, to: ~p"/?error=Sorry!+You+are+not+part+of+the+room")}
     end
   end
 

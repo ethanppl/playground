@@ -10,6 +10,10 @@ defmodule PlaygroundWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :room do
+    plug :put_root_layout, html: {PlaygroundWeb.Layouts, :room}
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -25,11 +29,15 @@ defmodule PlaygroundWeb.Router do
     live "/games", ListGamesLive, :list
     live "/games/:game", ListGamesLive, :show
 
-    live "/rooms/:code", RoomLive, :index
-
     post "/new_room", RoomController, :new
     post "/join_room", RoomController, :join
     post "/quit_room", RoomController, :quit
+
+    scope "/rooms" do
+      pipe_through :room
+
+      live "/:code", RoomLive, :index
+    end
   end
 
   # Other scopes may use custom stacks.

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Handle out of order broadcast messages in the room liveview page
+- Add footer and how to play
 
 ## [0.2.6] - 2025-02-09
 

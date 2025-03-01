@@ -1,37 +1,65 @@
 <.header class="w-full text-center" header_class="text-4xl font-bold">
-  All Games
-  <:subtitle>
-    Click to see how to play!
-  </:subtitle>
+  About
 </.header>
 
-<div class="mt-12 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
-  <div :for={game <- @games}>
-    <div class="border border-1 rounded-lg">
-      <button class="phx-submit-loading:opacity-75 rounded-lg px-3">
-        <.link patch={~p"/games/#{game.game_id}"}>
-          <picture>
-            <source type="image/webp" srcset={"/images/games/#{game.game_id}.webp"} />
-            <img
-              src={"/images/games/#{game.game_id}.png"}
-              class="w-11/12 aspect-square mx-auto p-2"
-            />
-          </picture>
-          <div class="flex flex-row justify-between py-2 px-2">
-            <span class="font-bold"><%= game.name %></span>
-            <div class="flex flex-row gap-1 items-center">
-              <span>
-                <%= if game.min_players == game.max_players do %>
-                  <%= game.min_players %>
-                <% else %>
-                  <%= game.min_players %> - <%= game.max_players %>
-                <% end %>
-              </span>
-              <.icon name="hero-users-solid" class="w-4 h-4" />
+<div class="my-12">
+  <.header>
+    How to play
+  </.header>
+
+  <p class="my-4">
+    Playground is a multiplayer games platform hosting small interactive games.
+    Each player join a room to play games together using their own device. Everything
+    will synchronize in real time as long as you have a stable Internet connection!
+  </p>
+  <p class="my-4">
+    For starter, create a room first. Each room has a unique 4 letters code.
+    Send that code, or the room invitation link to friends and invite them to
+    join the room. Once everyone is joined, one player can pick a game. It will
+    start the game for everyone in the room. Notice that there are limitations
+    on the number of players for each game.
+  </p>
+  <p class="my-4">
+    Try once and you will understand!
+  </p>
+</div>
+
+<div class="my-12">
+  <.header>
+    All Games
+    <:subtitle>
+      Click to see how to play!
+    </:subtitle>
+  </.header>
+
+  <div class="mt-4 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div :for={game <- @games}>
+      <div class="border border-1 rounded-lg">
+        <button class="phx-submit-loading:opacity-75 rounded-lg px-3">
+          <.link patch={~p"/games/#{game.game_id}"}>
+            <picture>
+              <source type="image/webp" srcset={"/images/games/#{game.game_id}.webp"} />
+              <img
+                src={"/images/games/#{game.game_id}.png"}
+                class="w-11/12 aspect-square mx-auto p-2"
+              />
+            </picture>
+            <div class="flex flex-row justify-between py-2 px-2">
+              <span class="font-bold"><%= game.name %></span>
+              <div class="flex flex-row gap-1 items-center">
+                <span>
+                  <%= if game.min_players == game.max_players do %>
+                    <%= game.min_players %>
+                  <% else %>
+                    <%= game.min_players %> - <%= game.max_players %>
+                  <% end %>
+                </span>
+                <.icon name="hero-users-solid" class="w-4 h-4" />
+              </div>
             </div>
-          </div>
-        </.link>
-      </button>
+          </.link>
+        </button>
+      </div>
     </div>
   </div>
 </div>

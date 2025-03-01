@@ -2,30 +2,32 @@
   Welcome to the Playground!
 </.header>
 
-<div class="flex flex-col mt-12 gap-6">
-  <div class="border rounded text-center hover:bg-zinc-100">
-    <.link patch={~p"/new"}>
-      <div class="py-20">
-        <.header header_class="text-lg md:text-xl font-semibold">
-          Create a Room
-          <:subtitle>
-            Create a room and invite others to join!
-          </:subtitle>
-        </.header>
-      </div>
-    </.link>
-  </div>
-  <div class="border rounded text-center hover:bg-zinc-100">
-    <.link patch={~p"/join"}>
-      <div class="py-20">
-        <.header header_class="text-lg md:text-xl font-semibold">
-          Join a Room with a Code
-          <:subtitle>
-            Have a code? Join the room!
-          </:subtitle>
-        </.header>
-      </div>
-    </.link>
+<div class="flex flex-col mt-12 gap-6 min-h-[50vh] justify-center">
+  <div class="flex flex-col md:flex-row gap-6 w-full">
+    <div class="border rounded-md text-center hover:bg-zinc-100 flex flex-1 justify-center">
+      <.link patch={~p"/new"}>
+        <div class="py-20">
+          <.header header_class="text-lg md:text-xl font-semibold">
+            Create a Room
+            <:subtitle>
+              Create a room and invite others to join!
+            </:subtitle>
+          </.header>
+        </div>
+      </.link>
+    </div>
+    <div class="border rounded-md text-center hover:bg-zinc-100 flex flex-1 justify-center">
+      <.link patch={~p"/join"}>
+        <div class="py-20">
+          <.header header_class="text-lg md:text-xl font-semibold">
+            Join a Room with a Code
+            <:subtitle>
+              Have a code? Join the room!
+            </:subtitle>
+          </.header>
+        </div>
+      </.link>
+    </div>
   </div>
   <div class="text-center mt-8">
     <.link
@@ -33,7 +35,7 @@
       class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
     >
       <span>
-        See Games
+        How to play and a list of all games
       </span>
       <.icon name="hero-arrow-right-solid" class="h-3 w-3" />
     </.link>
