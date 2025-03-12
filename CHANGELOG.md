@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Super tic tac toe: Highlight the last move
+
 ### Fixed
 
 - Super tic tac toe: fix timer tick overriding state

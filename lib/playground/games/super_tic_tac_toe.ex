@@ -71,6 +71,7 @@ defmodule Playground.Games.SuperTicTacToe do
       },
       "boards" => boards,
       "next_board" => "9",
+      "previous_move" => nil,
       "turn" => "#{Enum.at(players, 0)}",
       "winner" => nil,
       "timer" => %{
@@ -118,6 +119,7 @@ defmodule Playground.Games.SuperTicTacToe do
         new_boards = set_cell(state["boards"], move.board_id, move.row, move.col, player_symbol)
 
         state
+        |> Map.put("previous_move", move)
         |> Map.put("boards", new_boards)
         |> switch_turn()
         |> maybe_set_winner(move.board_id)

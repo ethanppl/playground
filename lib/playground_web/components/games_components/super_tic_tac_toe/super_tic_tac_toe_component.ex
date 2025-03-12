@@ -60,14 +60,14 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
       </div>
 
       <div class="flex justify-around">
-        <div class="mt-6 w-10/12 aspect-square grid grid-cols-3 border-2 solid border-slate-800">
+        <div class="mt-6 w-10/12 aspect-square grid grid-cols-3 border-2 solid border-slate-900">
           <%= Enum.map(0..8, fn board_num -> %>
             <!-- Each small board -->
             <div class="relative">
               <%!-- The overlay on each small board --%>
               <%= case get_cell(@game.state["boards"], "9", floor(board_num/3), rem(board_num, 3)) do %>
                 <% nil -> %>
-                  <div></div>
+                  <% nil %>
                 <% "x" -> %>
                   <div class="absolute w-full aspect-square flex item-center z-10">
                     <div class="m-auto w-10/12 aspect-square cross-lg" />
@@ -78,13 +78,13 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
                   </div>
               <% end %>
               <%!-- The grids for each small board --%>
-              <div class="w-full border-2 solid border-slate-800">
+              <div class="w-full border solid border-slate-900">
                 <div class={
                   [
                     # Basic classes
                     "w-full aspect-square grid grid-cols-3",
                     # When the board is disabled
-                    board_is_disabled?(@game.state, board_num) && "opacity-30 bg-slate-300",
+                    board_is_disabled?(@game.state, board_num) && "opacity-40 bg-slate-300",
                     # When the board is enabled, but the viewer is not the player
                     @game.state["turn"] != "#{@player_id}" &&
                       not board_is_disabled?(@game.state, board_num) && "opacity-80"
@@ -93,12 +93,16 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
                   <%= @game.state["boards"]["#{board_num}"] |> Enum.with_index() |> Enum.map(fn({row, row_index}) -> %>
                     <%= row |> Enum.with_index() |> Enum.map(fn({cell, col_index}) -> %>
                       <!-- Each small cell -->
-                      <div class="border solid border-slate-600 aspect-square flex item-center">
+                      <div class={[
+                        "border solid border-slate-600 aspect-square flex item-center",
+                        cell_is_previous_move?(@game.state, board_num, row_index, col_index) &&
+                          "bg-green-300"
+                      ]}>
                         <%= case cell do %>
                           <% nil -> %>
                             <%= if @game.state["turn"] == "#{@player_id}" and is_nil(@game.state["winner"]) and not board_is_disabled?(@game.state, board_num) do %>
                               <button
-                                class="aspect-square cursor-pointer hover:bg-gray-100"
+                                class="flex flex-grow cursor-pointer hover:bg-gray-100"
                                 phx-target={@myself}
                                 phx-click="move"
                                 phx-value-row_index={row_index}
@@ -248,6 +252,19 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
       true ->
         true
     end
+  end
+
+  def cell_is_previous_move?(
+        %{"previous_move" => %{"board_id" => board_id, "row" => row, "col" => col}},
+        board_id_int,
+        row,
+        col
+      ) do
+    String.to_integer(board_id) == board_id_int
+  end
+
+  def cell_is_previous_move?(_state, _board_id, _row, _col) do
+    false
   end
 
   def get_cell(boards, board_id, row, column) do
