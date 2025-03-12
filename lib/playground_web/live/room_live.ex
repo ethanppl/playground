@@ -101,7 +101,7 @@ defmodule PlaygroundWeb.RoomLive do
         socket
         |> assign(:room, room)
         |> assign(:games, games)
-        |> assign(:last_udpated_at, updated_at)
+        |> assign(:last_updated_at, updated_at)
 
       maybe_redirect_viewer(room, new_socket, true)
     else

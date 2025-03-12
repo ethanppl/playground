@@ -60,9 +60,11 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
       </div>
 
       <div class="flex justify-around">
-        <div class="mt-6 w-10/12 aspect-square grid grid-cols-3">
+        <div class="mt-6 w-10/12 aspect-square grid grid-cols-3 border-2 solid border-slate-800">
           <%= Enum.map(0..8, fn board_num -> %>
+            <!-- Each small board -->
             <div class="relative">
+              <%!-- The overlay on each small board --%>
               <%= case get_cell(@game.state["boards"], "9", floor(board_num/3), rem(board_num, 3)) do %>
                 <% nil -> %>
                   <div></div>
@@ -75,45 +77,41 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
                     <div class="m-auto w-10/12 aspect-square circle-lg" />
                   </div>
               <% end %>
-              <div class="w-full border-2 solid border-slate-400">
-                <div class={[
-                  "w-full aspect-square grid grid-cols-3",
-                  board_is_disabled?(@game.state, board_num) && "opacity-30",
-                  get_cell(@game.state["boards"], "9", floor(board_num / 3), rem(board_num, 3)) != nil &&
-                    "opacity-30",
-                  @game.state["turn"] != "#{@player_id}" &&
-                    not board_is_disabled?(@game.state, board_num) && "opacity-80",
-                  @game.state["winner"] != nil && "opacity-30"
-                ]}>
+              <%!-- The grids for each small board --%>
+              <div class="w-full border-2 solid border-slate-800">
+                <div class={
+                  [
+                    # Basic classes
+                    "w-full aspect-square grid grid-cols-3",
+                    # When the board is disabled
+                    board_is_disabled?(@game.state, board_num) && "opacity-30 bg-slate-300",
+                    # When the board is enabled, but the viewer is not the player
+                    @game.state["turn"] != "#{@player_id}" &&
+                      not board_is_disabled?(@game.state, board_num) && "opacity-80"
+                  ]
+                }>
                   <%= @game.state["boards"]["#{board_num}"] |> Enum.with_index() |> Enum.map(fn({row, row_index}) -> %>
                     <%= row |> Enum.with_index() |> Enum.map(fn({cell, col_index}) -> %>
-                      <%= case cell do %>
-                        <% nil -> %>
-                          <%= if @game.state["turn"] == "#{@player_id}" and is_nil(@game.state["winner"]) do %>
-                            <button
-                              class={[
-                                "border solid border-slate-400 aspect-square flex item-center cursor-pointer",
-                                not board_is_disabled?(@game.state, board_num) && "hover:bg-gray-100"
-                              ]}
-                              disabled={board_is_disabled?(@game.state, board_num)}
-                              phx-target={@myself}
-                              phx-click="move"
-                              phx-value-row_index={row_index}
-                              phx-value-col_index={col_index}
-                              phx-value-board_id={board_num}
-                            />
-                          <% else %>
-                            <div class="border solid border-slate-400 aspect-square flex item-center" />
-                          <% end %>
-                        <% "x" -> %>
-                          <div class="border solid border-slate-300 aspect-square flex item-center">
+                      <!-- Each small cell -->
+                      <div class="border solid border-slate-600 aspect-square flex item-center">
+                        <%= case cell do %>
+                          <% nil -> %>
+                            <%= if @game.state["turn"] == "#{@player_id}" and is_nil(@game.state["winner"]) and not board_is_disabled?(@game.state, board_num) do %>
+                              <button
+                                class="aspect-square cursor-pointer hover:bg-gray-100"
+                                phx-target={@myself}
+                                phx-click="move"
+                                phx-value-row_index={row_index}
+                                phx-value-col_index={col_index}
+                                phx-value-board_id={board_num}
+                              />
+                            <% end %>
+                          <% "x" -> %>
                             <div class="m-auto w-10/12 aspect-square cross" />
-                          </div>
-                        <% "o" -> %>
-                          <div class="border solid border-slate-300 aspect-square flex item-center">
+                          <% "o" -> %>
                             <div class="m-auto w-10/12 aspect-square circle" />
-                          </div>
-                      <% end %>
+                        <% end %>
+                      </div>
                     <% end) %>
                   <% end) %>
                 </div>
@@ -133,11 +131,16 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
 
   @impl Phoenix.LiveComponent
   def update(assigns, socket) do
+    # First cancel any tick timer
+    # If a tick is needed, schedule tick will schedule one new
+    # If a tick is not needed, prevents previous timer from overriding states
+    cancel_tick_timer(socket)
+
     timer_data = get_timer_data(assigns.game.state)
 
     tick_timer =
       if is_nil(assigns.game.state["winner"]) do
-        schedule_tick(assigns, Map.get(socket.assigns, :tick_timer))
+        schedule_tick(assigns)
       end
 
     {:ok,
@@ -165,17 +168,22 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
     {:noreply, socket}
   end
 
-  defp schedule_tick(assigns, timer) do
-    if timer do
-      Process.cancel_timer(timer)
-    end
-
+  defp schedule_tick(assigns) do
     send_update_after(
       self(),
       __MODULE__,
       assigns,
       1000
     )
+  end
+
+  defp cancel_tick_timer(%Phoenix.LiveView.Socket{assigns: %{tick_timer: tick_timer}})
+       when is_reference(tick_timer) do
+    Process.cancel_timer(tick_timer)
+  end
+
+  defp cancel_tick_timer(_socket) do
+    false
   end
 
   defp get_timer_data(state) do
@@ -215,19 +223,28 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
 
   def board_is_disabled?(state, board_num) do
     cond do
+      # All boards are disabled when there is a winner
       state["winner"] != nil ->
         true
 
+      # If the next board is the whole board
+      # And this board is not filled in the big board
+      # Then the board is not disabled
       state["next_board"] == "9" and
           is_nil(get_cell(state["boards"], "9", floor(board_num / 3), rem(board_num, 3))) ->
         false
 
+      # If the next board is the whole board
+      # And this board is filled in the big board
+      # Then the board is disabled
       state["next_board"] == "9" ->
         true
 
+      # If the next board is this board, then not disabled
       state["next_board"] == "#{board_num}" ->
         false
 
+      # If the next board is not this board, then disabled
       true ->
         true
     end
