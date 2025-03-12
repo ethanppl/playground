@@ -1,6 +1,8 @@
 defmodule Playground.Repo.Migrations.AddDeleteRecords do
   use Ecto.Migration
 
+  alias Playground.MigrationHelper
+
   # No soft delete: https://brandur.org/fragments/deleted-record-insert
   def change do
     create table(:deleted_records,
@@ -31,34 +33,8 @@ defmodule Playground.Repo.Migrations.AddDeleteRecords do
       """
     )
 
-    execute(
-      """
-      CREATE TRIGGER trigger_rooms_delete AFTER DELETE ON rooms
-          FOR EACH ROW EXECUTE FUNCTION insert_deleted_record();
-      """,
-      """
-      DROP TRIGGER IF EXISTS trigger_rooms_delete on public.tickets
-      """
-    )
-
-    execute(
-      """
-      CREATE TRIGGER trigger_games_delete AFTER DELETE ON games
-          FOR EACH ROW EXECUTE FUNCTION insert_deleted_record();
-      """,
-      """
-      DROP TRIGGER IF EXISTS trigger_games_delete on public.tickets
-      """
-    )
-
-    execute(
-      """
-      CREATE TRIGGER trigger_players_delete AFTER DELETE ON players
-          FOR EACH ROW EXECUTE FUNCTION insert_deleted_record();
-      """,
-      """
-      DROP TRIGGER IF EXISTS trigger_players_delete on public.tickets
-      """
-    )
+    MigrationHelper.create_delete_trigger("rooms")
+    MigrationHelper.create_delete_trigger("players")
+    MigrationHelper.create_delete_trigger("games")
   end
 end
