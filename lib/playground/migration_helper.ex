@@ -7,6 +7,7 @@ defmodule Playground.MigrationHelper do
   @doc """
   Creates a trigger to insert to delete records
   """
+  @spec create_delete_trigger(binary()) :: :ok
   def create_delete_trigger(table_name) do
     trigger_name = "trigger_" <> String.replace(table_name, ".", "_") <> "_delete"
 
