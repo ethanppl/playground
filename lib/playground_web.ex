@@ -43,7 +43,7 @@ defmodule PlaygroundWeb do
         layouts: [html: PlaygroundWeb.Layouts]
 
       import Plug.Conn
-      import PlaygroundWeb.Gettext
+      use Gettext, backend: PlaygroundWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -88,7 +88,7 @@ defmodule PlaygroundWeb do
       # Core UI components and translation
       import PlaygroundWeb.CoreComponents
       import PlaygroundWeb.RoomComponents
-      import PlaygroundWeb.Gettext
+      use Gettext, backend: PlaygroundWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
