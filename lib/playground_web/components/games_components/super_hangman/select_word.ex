@@ -39,7 +39,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.SelectWord do
             Your word:
           </div>
           <p class="w-3/4 md:w-1/2 rounded-md bg-gray-200 px-5 py-2 font-semibold font-mono text-xl">
-            <%= @game.state["words"]["#{@player_id}"] %>
+            {@game.state["words"]["#{@player_id}"]}
           </p>
         </div>
       <% else %>

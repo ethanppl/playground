@@ -11,7 +11,7 @@ defmodule PlaygroundWeb.CollapsibleComponent do
         phx-target={@myself}
         phx-click="toggle"
       >
-        <div class="w-11/12 text-left"><%= render_slot(@header) %></div>
+        <div class="w-11/12 text-left">{render_slot(@header)}</div>
         <%= if @collapsed do %>
           <.icon name="hero-chevron-left" class="h-4 w-4" />
         <% else %>
@@ -20,7 +20,7 @@ defmodule PlaygroundWeb.CollapsibleComponent do
       </button>
       <%= if not @collapsed do %>
         <div class="w-full bg-zinc-50 border-solid rounded-b p-6 text-sm">
-          <%= render_slot(@body) %>
+          {render_slot(@body)}
         </div>
       <% end %>
     </div>

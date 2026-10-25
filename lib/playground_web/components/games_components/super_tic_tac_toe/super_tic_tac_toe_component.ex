@@ -14,14 +14,14 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
           <% not is_nil(@game.state["winner"]) -> %>
             <%= if @game.state["winner"] == "draw" do %>
               <p>
-                You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %>. It's a draw!
+                You are {String.upcase(@game.state["players"]["#{@player_id}"])}. It's a draw!
               </p>
             <% else %>
               <%= if @game.state["winner"] == "#{@player_id}" do %>
-                <p>You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %>. You won!</p>
+                <p>You are {String.upcase(@game.state["players"]["#{@player_id}"])}. You won!</p>
               <% else %>
                 <p>
-                  You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %>. You lost!
+                  You are {String.upcase(@game.state["players"]["#{@player_id}"])}. You lost!
                 </p>
               <% end %>
             <% end %>
@@ -34,28 +34,28 @@ defmodule PlaygroundWeb.GamesComponents.SuperTicTacToeComponent do
               </.button>
             </div>
           <% @game.state["turn"] == "#{@player_id}" -> %>
-            <p>Your turn! You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %></p>
+            <p>Your turn! You are {String.upcase(@game.state["players"]["#{@player_id}"])}</p>
             <div class="mt-8 text-sm font-normal font-mono text-slate-500 w-full flex flex-row justify-around">
-              <%= @current %>
+              {@current}
             </div>
           <% true -> %>
             <p>
-              You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %>. Waiting...
+              You are {String.upcase(@game.state["players"]["#{@player_id}"])}. Waiting...
             </p>
             <div class="mt-8 text-sm font-normal font-mono text-slate-500 w-full flex flex-row justify-around">
-              <%= @current %>
+              {@current}
             </div>
         <% end %>
       </div>
 
       <div class="mt-2 text-sm font-mono text-slate-500 w-full flex flex-row justify-around">
         <div class="flex flex-row gap-4">
-          <span><%= find_player_name(@players, @game.state["symbols"]["x"]) %></span>
-          <span><%= @x_cumulative %></span>
+          <span>{find_player_name(@players, @game.state["symbols"]["x"])}</span>
+          <span>{@x_cumulative}</span>
         </div>
         <div class="flex flex-row gap-4">
-          <span><%= find_player_name(@players, @game.state["symbols"]["o"]) %></span>
-          <span><%= @o_cumulative %></span>
+          <span>{find_player_name(@players, @game.state["symbols"]["o"])}</span>
+          <span>{@o_cumulative}</span>
         </div>
       </div>
 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title suffix=" · Playground">
-      <%= assigns[:page_title] || "Playground" %>
+      {assigns[:page_title] || "Playground"}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
@@ -18,7 +18,7 @@
     </script>
   </head>
   <body class="bg-white antialiased min-h-screen flex flex-col justify-between">
-    <%= @inner_content %>
+    {@inner_content}
     <div class="flex flex-col gap-2 w-full py-8 bg-gray-100 justify-center items-center text-sm">
       <div class="flex gap-2 font-semibold">
         <a href="/games" class="hover:underline">
@@ -38,7 +38,7 @@
         </a>
       </div>
       <div>
-        Copyright © <%= Date.utc_today() |> Date.year_of_era() |> elem(0) %> Ethan Pang.
+        Copyright © {Date.utc_today() |> Date.year_of_era() |> elem(0)} Ethan Pang.
       </div>
     </div>
   </body>

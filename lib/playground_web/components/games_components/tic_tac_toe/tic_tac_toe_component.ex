@@ -14,14 +14,14 @@ defmodule PlaygroundWeb.GamesComponents.TicTacToeComponent do
           <% not is_nil(@game.state["winner"]) -> %>
             <%= if @game.state["winner"] == "draw" do %>
               <p>
-                You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %>. It's a draw!
+                You are {String.upcase(@game.state["players"]["#{@player_id}"])}. It's a draw!
               </p>
             <% else %>
               <%= if @game.state["winner"] == "#{@player_id}" do %>
-                <p>You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %>. You won!</p>
+                <p>You are {String.upcase(@game.state["players"]["#{@player_id}"])}. You won!</p>
               <% else %>
                 <p>
-                  You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %>. You lost!
+                  You are {String.upcase(@game.state["players"]["#{@player_id}"])}. You lost!
                 </p>
               <% end %>
             <% end %>
@@ -34,10 +34,10 @@ defmodule PlaygroundWeb.GamesComponents.TicTacToeComponent do
               </.button>
             </div>
           <% @game.state["turn"] == "#{@player_id}" -> %>
-            <p>Your turn! You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %></p>
+            <p>Your turn! You are {String.upcase(@game.state["players"]["#{@player_id}"])}</p>
           <% true -> %>
             <p>
-              You are <%= String.upcase(@game.state["players"]["#{@player_id}"]) %>. Waiting...
+              You are {String.upcase(@game.state["players"]["#{@player_id}"])}. Waiting...
             </p>
         <% end %>
       </div>

@@ -68,10 +68,10 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLettersLetter
           @variant == "history_incorrect" && "text-red-900"
         ]}>
           <%= if @letter_guess != nil do %>
-            <%= @letter %>
+            {@letter}
           <% else %>
             <%= if @is_player || @type == "history" || @variant == "others_revealed_privately" do %>
-              <%= @letter %>
+              {@letter}
             <% else %>
               ?
             <% end %>
@@ -194,7 +194,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
               <div class="flex flex-row gap-2">
                 <span>Waiting</span>
                 <span class="font-semibold font-mono">
-                  <%= find_player_name(@players, @game.state["turn"]) %>
+                  {find_player_name(@players, @game.state["turn"])}
                 </span>
                 <div class="relative h-6 w-5">
                   <span class="absolute left-1 animate-bounce">.</span>
@@ -217,7 +217,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
             <div class="w-full flex flex-row justify-between items-center gap-2">
               <div class="flex flex-1 flex-row gap-2">
                 <div class="my-auto w-24 break-word">
-                  <%= find_player_name(@players, id) %>
+                  {find_player_name(@players, id)}
                 </div>
                 <div class="hidden md:flex md:flex-row md:flex-wrap md:justify-between">
                   <div class="flex flex-1 flex-row flex-wrap gap-1">
@@ -301,14 +301,14 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
                   is_player={player_id == "#{@player_id}"}
                 />
                 <span class="text-xs text-zinc-400">
-                  <%= find_player_name(@players, player_id) %>
+                  {find_player_name(@players, player_id)}
                 </span>
               </div>
             <% end %>
           </div>
           <div class="mt-6">
             <i class="text-sm text-zinc-400">
-              <%= Enum.count(@game.state["players_letter_guesses"]) %>
+              {Enum.count(@game.state["players_letter_guesses"])}
               <%= if Enum.count(@game.state["players_letter_guesses"]) > 1 do %>
                 guesses
               <% else %>
@@ -357,7 +357,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
                   class="flex gap-4 py-4 text-sm leading-6 sm:gap-8"
                 >
                   <dt class="w-1/3 md:w-1/6 my-1 flex-none font-semibold font-mono">
-                    <%= find_player_name(@players, player_id) %>
+                    {find_player_name(@players, player_id)}
                   </dt>
                   <dd>
                     <%= if Enum.count(player_guess["history"]) == 0 do %>
@@ -375,7 +375,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
                             "bg-red-100 text-red-900"
                         ]}
                       >
-                        <%= word %>
+                        {word}
                       </span>
                     <% end %>
                   </dd>
@@ -448,7 +448,7 @@ defmodule PlaygroundWeb.GamesComponents.SuperHangmanComponent.GuessLetters do
                       "bg-red-100 text-red-900"
                   ]}
                 >
-                  <%= word %>
+                  {word}
                 </span>
               <% end %>
             </div>

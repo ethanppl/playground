@@ -1,10 +1,10 @@
 <%= if is_nil(@room.active_game) do %>
   <.header class="w-full text-center" header_class="text-xl md:text-4xl font-bold">
-    Welcome to Room <code class="select-all"><%= @room_code %></code>, <%= @player_name %>!
+    Welcome to Room <code class="select-all"><%= @room_code %></code>, {@player_name}!
     <:subtitle>
       <.copyable content={@join_room_link} /><br /> Share
       <a href={@join_room_link} target="_blank">this link</a>
-      or the code <code class="select-all"><%= @room_code %></code>
+      or the code <code class="select-all">{@room_code}</code>
       for others to join.
     </:subtitle>
   </.header>
@@ -41,13 +41,13 @@
               />
             </picture>
             <div class="flex flex-row justify-between py-2 px-2">
-              <span class="font-bold"><%= game.name %></span>
+              <span class="font-bold">{game.name}</span>
               <div class="flex flex-row gap-1 items-center">
                 <span>
                   <%= if game.min_players == game.max_players do %>
-                    <%= game.min_players %>
+                    {game.min_players}
                   <% else %>
-                    <%= game.min_players %> - <%= game.max_players %>
+                    {game.min_players} - {game.max_players}
                   <% end %>
                 </span>
                 <.icon name="hero-users-solid" class="w-4 h-4" />
@@ -113,7 +113,7 @@
 >
   <div :if={@info_modal_show_how_to_play}>
     <.header class="w-full text-center mt-2 mb-8" header_class="text-xl md:text-2xl font-bold">
-      <%= @info_modal_show_how_to_play.name %>
+      {@info_modal_show_how_to_play.name}
     </.header>
     <.live_component
       id={:how_to_play_modal}
@@ -130,7 +130,7 @@
   </div>
   <div :if={!@info_modal_show_how_to_play}>
     <.header class="w-full text-center" header_class="text-xl md:text-4xl font-bold">
-      Room <code><%= @room_code %></code>
+      Room <code>{@room_code}</code>
     </.header>
     <div class="mt-8">
       <.players_component room={@room} viewer_id={@player_id} />

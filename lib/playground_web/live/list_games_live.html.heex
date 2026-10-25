@@ -45,13 +45,13 @@
               />
             </picture>
             <div class="flex flex-row justify-between py-2 px-2">
-              <span class="font-bold"><%= game.name %></span>
+              <span class="font-bold">{game.name}</span>
               <div class="flex flex-row gap-1 items-center">
                 <span>
                   <%= if game.min_players == game.max_players do %>
-                    <%= game.min_players %>
+                    {game.min_players}
                   <% else %>
-                    <%= game.min_players %> - <%= game.max_players %>
+                    {game.min_players} - {game.max_players}
                   <% end %>
                 </span>
                 <.icon name="hero-users-solid" class="w-4 h-4" />
@@ -66,7 +66,7 @@
 
 <.modal :if={@live_action == :show} id="game-modal" show on_cancel={JS.patch(~p"/games")}>
   <.header class="w-full text-center mt-2 mb-8" header_class="text-xl md:text-2xl font-bold">
-    <%= @game.name %>
+    {@game.name}
   </.header>
   <.live_component
     id={:how_to_play_modal}
